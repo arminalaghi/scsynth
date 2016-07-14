@@ -4,7 +4,7 @@ scsynth is a synthesis tool for stochastic computing circuits. Currently, it can
 ## Stochastic Computing
 Stochastic computing is a computing technique involving representing numbers as single streams of bits in sequence rather than groups of bits probabilistically in parallel as is typically done in modern computing architectures. Stochastic circuits tend to run slower than their typical digital counterparts, but they also tend to be smaller (and thus lower-energy) and can be more error tolerant, giving them a number of potential applications, including neural networks and image processing.
 
-More information can be found at [https://en.wikipedia.org/wiki/Stochastic_computing].
+More information can be found at https://en.wikipedia.org/wiki/Stochastic_computing.
 
 ## Usage
 scsynth consists of functions that can be run in MATLAB or Octave to generate Verilog modules. Currently, the following functions exist:
