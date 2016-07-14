@@ -30,52 +30,51 @@
 		reset = 1;
 		#1 reset = 0;
 		start = 1;
-
-		#2 x_bin = 10'd999;
-		expected_z = 10'd741;
+		#2 x_bin = 10'd101;
+		expected_z = 10'd352;
 		start = 0;
 
-		#2054 x_bin = 10'd723;
-		expected_z = 10'd563;
+		#2053 x_bin = 10'd218;
+		expected_z = 10'd426;
 		start = 0;
 
-		#2054 x_bin = 10'd237;
-		expected_z = 10'd436;
+		#2053 x_bin = 10'd283;
+		expected_z = 10'd455;
 		start = 0;
 
-		#2054 x_bin = 10'd107;
-		expected_z = 10'd357;
+		#2053 x_bin = 10'd185;
+		expected_z = 10'd409;
 		start = 0;
 
-		#2054 x_bin = 10'd1022;
-		expected_z = 10'd766;
+		#2053 x_bin = 10'd697;
+		expected_z = 10'd554;
 		start = 0;
 
-		#2054 x_bin = 10'd385;
-		expected_z = 10'd486;
+		#2053 x_bin = 10'd732;
+		expected_z = 10'd566;
 		start = 0;
 
-		#2054 x_bin = 10'd358;
-		expected_z = 10'd479;
+		#2053 x_bin = 10'd232;
+		expected_z = 10'd433;
 		start = 0;
 
-		#2054 x_bin = 10'd434;
-		expected_z = 10'd497;
+		#2053 x_bin = 10'd687;
+		expected_z = 10'd551;
 		start = 0;
 
-		#2054 x_bin = 10'd867;
-		expected_z = 10'd632;
+		#2053 x_bin = 10'd380;
+		expected_z = 10'd484;
 		start = 0;
 
-		#2054 x_bin = 10'd150;
-		expected_z = 10'd387;
+		#2053 x_bin = 10'd652;
+		expected_z = 10'd542;
 		start = 0;
 
-		#2054 x_bin = 10'd620;
-		expected_z = 10'd534;
+		#2053 x_bin = 10'd631;
+		expected_z = 10'd536;
 		start = 0;
 
-		#2068 $stop;
+		#2053 $stop;
 	end
 
 	always @(posedge done) begin
