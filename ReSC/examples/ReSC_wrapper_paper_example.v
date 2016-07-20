@@ -59,49 +59,22 @@ module ReSC_wrapper_paper_example( //handles stochastic/binary conversion for Re
 	);
 	assign x_stoch[2] = randx2 < x_bin;
 
-	wire [9:0] randw0;
-	LFSR_10_bit_added_zero_paper_example rand_gen_w_0 (
-		.seed (10'd439),
-		.data (randw0),
+	wire [9:0] randw;
+	LFSR_10_bit_added_zero_paper_example rand_gen_w (
+		.seed (10'd683),
+		.data (randw),
 		.enable (running),
 		.restart (init),
 		.clk (clk),
 		.reset (reset)
 	);
-	assign w_stoch[0] = randw0 < w0_bin;
+	assign w_stoch[0] = randw < w0_bin;
 
-	wire [9:0] randw1;
-	LFSR_10_bit_added_zero_paper_example rand_gen_w_1 (
-		.seed (10'd585),
-		.data (randw1),
-		.enable (running),
-		.restart (init),
-		.clk (clk),
-		.reset (reset)
-	);
-	assign w_stoch[1] = randw1 < w1_bin;
+	assign w_stoch[1] = randw < w1_bin;
 
-	wire [9:0] randw2;
-	LFSR_10_bit_added_zero_paper_example rand_gen_w_2 (
-		.seed (10'd731),
-		.data (randw2),
-		.enable (running),
-		.restart (init),
-		.clk (clk),
-		.reset (reset)
-	);
-	assign w_stoch[2] = randw2 < w2_bin;
+	assign w_stoch[2] = randw < w2_bin;
 
-	wire [9:0] randw3;
-	LFSR_10_bit_added_zero_paper_example rand_gen_w_3 (
-		.seed (10'd878),
-		.data (randw3),
-		.enable (running),
-		.restart (init),
-		.clk (clk),
-		.reset (reset)
-	);
-	assign w_stoch[3] = randw3 < w3_bin;
+	assign w_stoch[3] = randw < w3_bin;
 
 	ReSC_paper_example ReSC (
 		.x (x_stoch),

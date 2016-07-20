@@ -14,7 +14,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff, randModule,
-                                    ReSCModule, moduleName)
+                                    ReSCModule, moduleName,
+                                    singleWeightLFSR=true)
 
   %Generates a Verilog module that wraps an ReSC unit with conversions
   %from binary to stochastic on the inputs and from stochastic to binary
@@ -30,6 +31,9 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff, randModule,
   %             stochastic number generation
   % ReSCModule: name of the ReSC module to wrap
   % moduleName: the name of the verilog module
+  
+  %Optional Parameters:
+  % singleWeightLFSR: Use the same LFSR for every constant. (Default true)
   
   m = log2(N);
   decimal_coeffs = round(coeff * 2^m_coeff) / (2^m_coeff) * N;
@@ -94,19 +98,34 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff, randModule,
   end
   
   %binary to stochastic conversion for the coefficients
-  for i=0:degree
-    fprintf(fp, '\twire [%d:0] randw%d;\n', m - 1, i);
-    fprintf(fp, '\t%s rand_gen_w_%d (\n', randModule, i);
-		fprintf(fp, "\t\t.seed (%d'd%d),\n", m, round(N*(i+degree)/(degree*2+1)));
-		fprintf(fp, '\t\t.data (randw%d),\n', i);
-		fprintf(fp, '\t\t.enable (running),\n');
-		fprintf(fp, '\t\t.restart (init),\n');
-		fprintf(fp, '\t\t.clk (clk),\n');
-		fprintf(fp, '\t\t.reset (reset)\n');
-		fprintf(fp, '\t);\n');
-    fprintf(fp, '\tassign w_stoch[%d] = randw%d < w%d_bin;\n\n',  i, i, i);
+  if singleWeightLFSR
+    fprintf(fp, '\twire [%d:0] randw;\n', m - 1);
+    fprintf(fp, '\t%s rand_gen_w (\n', randModule);
+	  fprintf(fp, "\t\t.seed (%d'd%d),\n", m, round(N * 2 / 3));
+	  fprintf(fp, '\t\t.data (randw),\n');
+	  fprintf(fp, '\t\t.enable (running),\n');
+	  fprintf(fp, '\t\t.restart (init),\n');
+	  fprintf(fp, '\t\t.clk (clk),\n');
+	  fprintf(fp, '\t\t.reset (reset)\n');
+	  fprintf(fp, '\t);\n');
+    for i=0:degree
+      fprintf(fp, '\tassign w_stoch[%d] = randw < w%d_bin;\n\n',  i, i);
+    end
+  else
+    for i=0:degree
+      fprintf(fp, '\twire [%d:0] randw%d;\n', m - 1, i);
+      fprintf(fp, '\t%s rand_gen_w_%d (\n', randModule, i);
+	  	fprintf(fp, "\t\t.seed (%d'd%d),\n", m, round(N*(i+degree)/(degree*2+1)));
+	  	fprintf(fp, '\t\t.data (randw%d),\n', i);
+	  	fprintf(fp, '\t\t.enable (running),\n');
+	  	fprintf(fp, '\t\t.restart (init),\n');
+	  	fprintf(fp, '\t\t.clk (clk),\n');
+	  	fprintf(fp, '\t\t.reset (reset)\n');
+	  	fprintf(fp, '\t);\n');
+      fprintf(fp, '\tassign w_stoch[%d] = randw%d < w%d_bin;\n\n',  i, i, i);
+    end
   end
-
+    
   %initialize the core ReSC module
 	fprintf(fp, '\t%s ReSC (\n', ReSCModule);
 	fprintf(fp, '\t\t.x (x_stoch),\n');

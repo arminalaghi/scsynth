@@ -32,48 +32,48 @@ module ReSC_test_paper_example(); //a testbench for an ReSC module
 		#1 reset = 0;
 		start = 1;
 
-		#2 x_bin = 10'd822;
-		expected_z = 10'd606;
+		#2 x_bin = 10'd95;
+		expected_z = 10'd347;
 		start = 0;
 
-		#2054 x_bin = 10'd485;
-		expected_z = 10'd507;
+		#2054 x_bin = 10'd42;
+		expected_z = 10'd300;
 		start = 0;
 
-		#2054 x_bin = 10'd913;
-		expected_z = 10'd664;
+		#2054 x_bin = 10'd559;
+		expected_z = 10'd521;
 		start = 0;
 
-		#2054 x_bin = 10'd457;
-		expected_z = 10'd501;
+		#2054 x_bin = 10'd788;
+		expected_z = 10'd589;
 		start = 0;
 
-		#2054 x_bin = 10'd450;
-		expected_z = 10'd500;
+		#2054 x_bin = 10'd412;
+		expected_z = 10'd492;
 		start = 0;
 
-		#2054 x_bin = 10'd890;
-		expected_z = 10'd647;
+		#2054 x_bin = 10'd237;
+		expected_z = 10'd436;
 		start = 0;
 
-		#2054 x_bin = 10'd249;
-		expected_z = 10'd441;
+		#2054 x_bin = 10'd18;
+		expected_z = 10'd276;
 		start = 0;
 
-		#2054 x_bin = 10'd306;
-		expected_z = 10'd463;
+		#2054 x_bin = 10'd392;
+		expected_z = 10'd487;
 		start = 0;
 
-		#2054 x_bin = 10'd570;
-		expected_z = 10'd523;
+		#2054 x_bin = 10'd608;
+		expected_z = 10'd531;
 		start = 0;
 
-		#2054 x_bin = 10'd384;
-		expected_z = 10'd485;
+		#2054 x_bin = 10'd978;
+		expected_z = 10'd720;
 		start = 0;
 
-		#2054 x_bin = 10'd461;
-		expected_z = 10'd502;
+		#2054 x_bin = 10'd930;
+		expected_z = 10'd677;
 		start = 0;
 
 		#2068 $stop;

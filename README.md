@@ -9,7 +9,7 @@ More information can be found at https://en.wikipedia.org/wiki/Stochastic_comput
 ## Usage
 scsynth consists of functions that can be run in MATLAB or Octave to generate Verilog modules. Currently, the following functions exist:
 * `VerilogLFSRGenerator(dataLen, taps, addZero, moduleName)` which generates a linear feedback shift register, a module for pseudorandom number generation
-* `VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix)` which generates a full ReSC unit, including conversion to and from binary equivalents (and pseudorandom number generators used therein) as well as a testbench for the module
+* `VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true)` which generates a full ReSC unit, including conversion to and from binary equivalents (and pseudorandom number generators used therein) as well as a testbench for the module
 
 More details on the usage of these functions can be found in the source code.
 
