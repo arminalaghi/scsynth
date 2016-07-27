@@ -6,14 +6,14 @@
 %% this program at https://github.com/arminalaghi/scsynth
 %%
 %% References:
-%% W. Qian, X. Li, M. D. Riedel, K. Bazargan and D. J. Lilja, "An Architecture
-%% for Fault-Tolerant Computation with Stochastic Logic," in IEEE Transactions
-%% on Computers, vol. 60, no. 1, pp. 93-105, Jan. 2011.
-%% doi: 10.1109/TC.2010.202
-%%
+%% Qian, W., Li, X., Riedel, M. D., Bazargan, K., & Lilja, D. J. (2011). An
+%% Architecture for Fault-Tolerant Computation with Stochastic Logic. IEEE
+%% Transactions on Computers IEEE Trans. Comput., 60(1), 93-105.
+%% doi:10.1109/tc.2010.202
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix)
+function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,
+                              singleWeightLFSR=true)
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a methods
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
   %Lilja for approximating the computation of any function with domain and range
@@ -37,6 +37,9 @@ function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix)
   % nameSuffix: a distinguishing suffix to append to the name of each Verilog
   %             module
   
+  %Optional Parameters:
+  % singleWeightLFSR: Use the same LFSR for every constant. (Default true)
+  
   ReSCName = sprintf('ReSC_%s', nameSuffix);
   wrapperName = sprintf('ReSC_wrapper_%s', nameSuffix);
   testName = sprintf('ReSC_test_%s', nameSuffix);
@@ -45,7 +48,7 @@ function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix)
   VerilogCoreReSCGenerator(length(coeff) - 1, ReSCName);
   
   VerilogSCWrapperGenerator(coeff, N, m_input, m_coeff, randName, ReSCName,
-                            wrapperName);
+                            wrapperName, singleWeightLFSR);
   
   VerilogReSCTestGenerator(coeff, N, m_input, m_coeff, wrapperName, testName);
  
