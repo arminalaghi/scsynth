@@ -10,6 +10,11 @@
 %% Architecture for Fault-Tolerant Computation with Stochastic Logic. IEEE
 %% Transactions on Computers IEEE Trans. Comput., 60(1), 93-105.
 %% doi:10.1109/tc.2010.202
+%%
+%% A. Alaghi and J. P. Hayes, "Exploiting correlation in stochastic circuit
+%% design," 2013 IEEE 31st International Conference on Computer Design (ICCD),
+%% Asheville, NC, 2013, pp. 39-46.
+%% doi: 10.1109/ICCD.2013.6657023
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,

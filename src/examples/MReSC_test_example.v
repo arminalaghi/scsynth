@@ -37,80 +37,80 @@ module MReSC_test_example(); //a testbench for an ReSC module
 		start = 1;
 
 		#2
-		x_1_bin = 12'd987;
-		x_2_bin = 12'd3856;
-		x_3_bin = 12'd1661;
-		expected_z = 12'd1785;
+		x_1_bin = 12'd1874;
+		x_2_bin = 12'd2842;
+		x_3_bin = 12'd1226;
+		expected_z = 12'd2134;
 		start = 0;
 
 		#8198
-		x_1_bin = 12'd57;
-		x_2_bin = 12'd1035;
-		x_3_bin = 12'd717;
-		expected_z = 12'd2854;
+		x_1_bin = 12'd433;
+		x_2_bin = 12'd1026;
+		x_3_bin = 12'd2237;
+		expected_z = 12'd2408;
 		start = 0;
 
 		#8198
-		x_1_bin = 12'd2434;
-		x_2_bin = 12'd1055;
-		x_3_bin = 12'd2222;
-		expected_z = 12'd1984;
+		x_1_bin = 12'd4010;
+		x_2_bin = 12'd3347;
+		x_3_bin = 12'd1641;
+		expected_z = 12'd2290;
 		start = 0;
 
 		#8198
-		x_1_bin = 12'd423;
-		x_2_bin = 12'd734;
-		x_3_bin = 12'd2476;
-		expected_z = 12'd2616;
+		x_1_bin = 12'd808;
+		x_2_bin = 12'd3270;
+		x_3_bin = 12'd1757;
+		expected_z = 12'd1792;
 		start = 0;
 
 		#8198
-		x_1_bin = 12'd971;
-		x_2_bin = 12'd1870;
-		x_3_bin = 12'd3772;
-		expected_z = 12'd2260;
+		x_1_bin = 12'd1750;
+		x_2_bin = 12'd1646;
+		x_3_bin = 12'd3535;
+		expected_z = 12'd2292;
 		start = 0;
 
 		#8198
-		x_1_bin = 12'd1925;
-		x_2_bin = 12'd748;
-		x_3_bin = 12'd1295;
-		expected_z = 12'd1949;
+		x_1_bin = 12'd3402;
+		x_2_bin = 12'd3455;
+		x_3_bin = 12'd1332;
+		expected_z = 12'd2499;
 		start = 0;
 
 		#8198
-		x_1_bin = 12'd2571;
-		x_2_bin = 12'd3069;
-		x_3_bin = 12'd314;
-		expected_z = 12'd2203;
+		x_1_bin = 12'd989;
+		x_2_bin = 12'd1453;
+		x_3_bin = 12'd1048;
+		expected_z = 12'd2361;
 		start = 0;
 
 		#8198
-		x_1_bin = 12'd1878;
-		x_2_bin = 12'd121;
-		x_3_bin = 12'd1553;
-		expected_z = 12'd1893;
+		x_1_bin = 12'd1365;
+		x_2_bin = 12'd3676;
+		x_3_bin = 12'd1649;
+		expected_z = 12'd1732;
 		start = 0;
 
 		#8198
-		x_1_bin = 12'd1392;
-		x_2_bin = 12'd226;
-		x_3_bin = 12'd3695;
-		expected_z = 12'd1728;
+		x_1_bin = 12'd2588;
+		x_2_bin = 12'd1242;
+		x_3_bin = 12'd3022;
+		expected_z = 12'd2096;
 		start = 0;
 
 		#8198
-		x_1_bin = 12'd1967;
-		x_2_bin = 12'd2344;
-		x_3_bin = 12'd2063;
-		expected_z = 12'd2199;
+		x_1_bin = 12'd2730;
+		x_2_bin = 12'd1219;
+		x_3_bin = 12'd861;
+		expected_z = 12'd2050;
 		start = 0;
 
 		#8198
-		x_1_bin = 12'd2903;
-		x_2_bin = 12'd1635;
-		x_3_bin = 12'd1301;
-		expected_z = 12'd1914;
+		x_1_bin = 12'd2094;
+		x_2_bin = 12'd2070;
+		x_3_bin = 12'd726;
+		expected_z = 12'd2235;
 		start = 0;
 
 		#8212 $stop;

@@ -13,6 +13,11 @@
 %%
 %% Qian, W., & Riedel, M.D.. (2010). The Synthesis of Stochastic Logic to
 %% Perform Multivariate Polynomial Arithmetic.
+%%
+%% A. Alaghi and J. P. Hayes, "Exploiting correlation in stochastic circuit
+%% design," 2013 IEEE 31st International Conference on Computer Design (ICCD),
+%% Asheville, NC, 2013, pp. 39-46.
+%% doi: 10.1109/ICCD.2013.6657023
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input, m_coeff,
