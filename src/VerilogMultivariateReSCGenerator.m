@@ -51,6 +51,7 @@ function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input, m_coeff,
   
   %Optional Parameters:
   % singleWeightLFSR: Use the same LFSR for every constant. (Default true)
+  addpath(genpath('.'));
   
   ReSCName = sprintf('MReSC_%s', nameSuffix);
   wrapperName = sprintf('MReSC_wrapper_%s', nameSuffix);

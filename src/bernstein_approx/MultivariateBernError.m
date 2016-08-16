@@ -10,20 +10,29 @@
 %% Architecture for Fault-Tolerant Computation with Stochastic Logic. IEEE
 %% Transactions on Computers IEEE Trans. Comput., 60(1), 93-105.
 %% doi:10.1109/tc.2010.202
+%%
+%% Qian, W., & Riedel, M.D.. (2010). The Synthesis of Stochastic Logic to
+%% Perform Multivariate Polynomial Arithmetic.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function error = BernError(vals, coeff, errorMetric=@MeanSquareError)
-  %Calculate the error of a Bernstein approximation on a set of sample data
+function error = MultivariateBernError(vals, degrees, coeff,
+                  errorMetric=@MeanSquareError)
+  %Calculate the error of a multivariate Bernstein approximation on a set of
+  %sample data
   
   %Parameters:
-  % vals : two-column vector representing inputs and outputs of the function
-  %        being approximated
-  % coeff: the coeffecients of the Bernstein polynomial
+  % vals   : n+1-column vector representing inputs and outputs of the function
+  %          being approximated
+  % degrees: degrees of
+  % coeff  : the coeffecients of the Bernstein polynomial
   
   %Optional Parameters:
   % errorMetric: metric by which to compare approximate and expected results,
   %              default MeanSquareError
   
-  bern = @(x)(sum(arrayfun(@BernBasis, x, [0:length(coeff)-1].',
-                  length(coeff)-1) .* coeff));
-  error = errorMetric(arrayfun(bern, vals(:,1)), vals(:,2));
+  computed = [];
+  for i=1:length(vals)
+    computed = [computed; ComputeMultivariateBernstein(coeff, degrees, 1,
+                            vals(i, 1:length(degrees)), 1)];
+  end
+  error = errorMetric(computed, vals(:,2));
 end

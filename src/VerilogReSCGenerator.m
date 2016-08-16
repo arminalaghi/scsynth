@@ -44,6 +44,7 @@ function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,
   
   %Optional Parameters:
   % singleWeightLFSR: Use the same LFSR for every constant. (Default true)
+  addpath(genpath('.'));
   
   ReSCName = sprintf('ReSC_%s', nameSuffix);
   wrapperName = sprintf('ReSC_wrapper_%s', nameSuffix);
