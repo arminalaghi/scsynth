@@ -1,5 +1,5 @@
 # scsynth
-scsynth is a synthesis tool for stochastic computing circuits developed by Armin Alaghi and N. Eamon Gaffney at the Univeristy of Washington. Currently, it can create Verilog files describing reconfigurable architectures based on stochastic logic, or ReSCs (Qian et al., 2011), but its functionality is constantly expanding.
+scsynth is a synthesis tool for stochastic computing circuits developed by N. Eamon Gaffney and Armin Alaghi at the Univeristy of Washington. Currently, it can create Verilog files describing reconfigurable architectures based on stochastic logic, or ReSCs (Qian et al., 2011), but its functionality is constantly expanding.
 
 ## Stochastic Computing
 Stochastic computing is a computing technique involving representing numbers as single streams of bits in sequence rather than groups of bits probabilistically in parallel as is typically done in modern computing architectures. Stochastic circuits tend to run slower than their typical digital counterparts, but they also tend to be smaller (and thus lower-energy) and can be more error tolerant, giving them a number of potential applications, including neural networks and image processing.
