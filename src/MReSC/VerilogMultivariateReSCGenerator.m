@@ -11,31 +11,38 @@
 %% Transactions on Computers IEEE Trans. Comput., 60(1), 93-105.
 %% doi:10.1109/tc.2010.202
 %%
+%% Qian, W., & Riedel, M.D.. (2010). The Synthesis of Stochastic Logic to
+%% Perform Multivariate Polynomial Arithmetic.
+%%
 %% A. Alaghi and J. P. Hayes, "Exploiting correlation in stochastic circuit
 %% design," 2013 IEEE 31st International Conference on Computer Design (ICCD),
 %% Asheville, NC, 2013, pp. 39-46.
 %% doi: 10.1109/ICCD.2013.6657023
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,
-                              singleWeightLFSR=true)
-  %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a methods
+function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input, m_coeff,
+                                          nameSuffix, singleWeightLFSR=true)
+  %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
   %Lilja for approximating the computation of any function with domain and range
   %in the unit interval as a stochastic circuit using a Bernstein polynomial
-  %approximation of the function. This function generates a complete ReSC module
-  %written in Verilog, containing the following files:
-  % ReSC_[nameSuffix].v - The core stochastic module
-  % ReSC_wrapper_[nameSuffix].v - A wrapper for the module that converts inputs
-  %                               inputs and outputs between binary and
-  %                               stochastic representations.
-  % ReSC_test_[nameSuffix].v - A testbench for the system.
+  %approximation of the function. The Multivariate form allows extension to
+  %functions of several variables by using the product of the individual
+  %polynomials on those variables. This function generates a complete
+  %multivariate ReSC module written in Verilog, containing the following files:
+  % MReSC_[nameSuffix].v - The core stochastic module
+  % MReSC_wrapper_[nameSuffix].v - A wrapper for the module that converts inputs
+  %                                inputs and outputs between binary and
+  %                                stochastic representations.
+  % MReSC_test_[nameSuffix].v - A testbench for the system.
   % LFSR_[log(N)]_bit_added_zero_[nameSuffix].v - The RNG for generating
   %                                               stochastic numbers.
   
   %Parameters:
-  % coeff     : a list of coefficients of the Bernstein polynomial; each
+  % coeff     : a list of coefficients of the Bernstein polynomial, ordered
+  %             w_0_0..._0, w_0_0..._1, ..., w_0_0..._1_0, etc.; each
   %             coefficient should fall within the unit interval
+  % degrees   : the degrees of the component Bernstein polynomials in order
   % N         : the length of the stochastic bitstreams, must be a power of 2
   % m_input   : the length in bits of the input, at most log2(N)
   % m_coeff   : the length in bits of the coefficients, at most log2(N)
@@ -44,19 +51,20 @@ function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,
   
   %Optional Parameters:
   % singleWeightLFSR: Use the same LFSR for every constant. (Default true)
-  addpath(genpath('.'));
   
-  ReSCName = sprintf('ReSC_%s', nameSuffix);
-  wrapperName = sprintf('ReSC_wrapper_%s', nameSuffix);
-  testName = sprintf('ReSC_test_%s', nameSuffix);
+  ReSCName = sprintf('MReSC_%s', nameSuffix);
+  wrapperName = sprintf('MReSC_wrapper_%s', nameSuffix);
+  testName = sprintf('MReSC_test_%s', nameSuffix);
   randName = sprintf('LFSR_%d_bit_added_zero_%s', log2(N), nameSuffix);
   
-  VerilogCoreReSCGenerator(length(coeff) - 1, ReSCName);
+  VerilogCoreMultivariateReSCGenerator(degrees, ReSCName);
   
-  VerilogSCWrapperGenerator(coeff, N, m_input, m_coeff, randName, ReSCName,
-                            wrapperName, singleWeightLFSR);
+  VerilogMultivariateSCWrapperGenerator(coeff, degrees, N, m_input, m_coeff,
+                                        randName, ReSCName, wrapperName,
+                                        singleWeightLFSR);
   
-  VerilogReSCTestGenerator(coeff, N, m_input, m_coeff, wrapperName, testName);
+  VerilogMultivariateReSCTestGenerator(coeff, degrees, N, m_input, m_coeff,
+                                       wrapperName, testName);
  
   switch(log2(N))
 		case 3

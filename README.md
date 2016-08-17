@@ -9,8 +9,10 @@ More information can be found at https://en.wikipedia.org/wiki/Stochastic_comput
 ## Usage
 scsynth consists of functions that can be run in MATLAB or Octave to generate Verilog modules. Currently, the following user-facing functions exist:
 * `VerilogLFSRGenerator(dataLen, taps, addZero, moduleName)` which generates a linear feedback shift register, a module for pseudorandom number generation
-* `VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true)` which generates a full ReSC unit, including conversion to and from binary equivalents (and pseudorandom number generators used therein) as well as a testbench for the module
-* `VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true)` which functions much like the normal ReSC generator but allows for functions on multiple variables
+* `VerilogReSCFromData(data, degree, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true)` which, given datapoints from a function and the desired degree of the polynomial used to model the function, generates a full ReSC unit, including conversion to and from binary equivalents (and pseudorandom number generators used therein) as well as a testbench for the module
+* `VerilogReSCFromFunction(func, degree, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true, domain=[0,1], granularity=100)` which works like VerilogReSCFromData, but takes a function itself rather than data representing that function 
+* `VerilogMReSCFromData(data, degrees, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true)` which functions much like the normal ReSC generator but allows for functions on multiple variables (note: computational complexity scales very quickly as you add variables)
+* `VerilogMReSCFromData(func, degrees, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true, domains=[0,1], granularities=100)` which generates a multivariate ReSC from a function rather than data
 
 More details on the usage of these functions can be found in the source code.
 

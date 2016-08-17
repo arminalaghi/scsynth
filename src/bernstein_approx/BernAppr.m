@@ -28,13 +28,14 @@ function [coefs, obj, H, b, c] = BernAppr(vals, degree)
   % vals  : two-column vector representing inputs and outputs of the function
   %         being approximated
   % degree: the degree of the Bernstein polynomial to generate
+  pkg load optim;
   tol = 1.e-12;
   int_l = 0;
   int_u = 1;
-  x = vals(:,1).'
-  y = vals(:,2).'
-  x = [0, x, 1]
-  y = [y(1), y, y(length(y))]
+  x = vals(:,1).';
+  y = vals(:,2).';
+  x = [0, x, 1];
+  y = [y(1), y, y(length(y))];
 
   % set up the matrix H
   for i = 1:(degree+1)
