@@ -14,8 +14,8 @@
 %% Qian, W., & Riedel, M.D.. (2010). The Synthesis of Stochastic Logic to
 %% Perform Multivariate Polynomial Arithmetic.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function error = MultivariateBernError(vals, degrees, coeff,
-                  errorMetric=@MeanSquareError)
+function error = MultivariateBernError(vals, degrees, coeff,...
+                                       errorMetric=@MeanSquareError)
   %Calculate the error of a multivariate Bernstein approximation on a set of
   %sample data
   
@@ -31,7 +31,7 @@ function error = MultivariateBernError(vals, degrees, coeff,
   
   computed = [];
   for i=1:length(vals)
-    computed = [computed; ComputeMultivariateBernstein(coeff, degrees, 1,
+    computed = [computed; ComputeMultivariateBernstein(coeff, degrees, 1,...
                             vals(i, 1:length(degrees)), 1)];
   end
   error = errorMetric(computed, vals(:,2));

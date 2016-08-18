@@ -17,9 +17,9 @@
 %% doi: 10.1109/ICCD.2013.6657023
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function VerilogReSCFromFunction (func, degree, N, m_input, m_coeff, nameSuffix,
-                                  singleWeightLFSR=true, domain = [0, 1],
-                                  granularity=100)
+function VerilogReSCFromFunction (func, degree, N, m_input, m_coeff,...
+                                  nameSuffix, singleWeightLFSR=true,...
+                                  domain = [0, 1], granularity=100)
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
   %Lilja for approximating the computation of any function with domain and range

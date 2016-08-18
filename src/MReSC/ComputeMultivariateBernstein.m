@@ -33,9 +33,9 @@ function [retval] = ComputeMultivariateBernstein(coeff, degrees, w, x, i)
   else
     retval = 0;
     for j=0:degrees(i)
-      retval += (nchoosek(degrees(i), j) * x(i) ^ j * (1 - x(i)) ^
-                (degrees(i) - j) *
-                ComputeMultivariateBernstein(coeff, degrees,
+      retval += (nchoosek(degrees(i), j) * x(i) ^ j * (1 - x(i)) ^...
+                (degrees(i) - j) *...
+                ComputeMultivariateBernstein(coeff, degrees,...
                   w + prod(degrees(i+1:length(degrees))) * j, x, i + 1));
     end
   end                

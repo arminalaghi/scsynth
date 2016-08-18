@@ -23,7 +23,7 @@ function error = BernError(vals, coeff, errorMetric=@MeanSquareError)
   % errorMetric: metric by which to compare approximate and expected results,
   %              default MeanSquareError
   
-  bern = @(x)(sum(arrayfun(@BernBasis, x, [0:length(coeff)-1].',
+  bern = @(x)(sum(arrayfun(@BernBasis, x, [0:length(coeff)-1].',...
                   length(coeff)-1) .* coeff));
   error = errorMetric(arrayfun(bern, vals(:,1)), vals(:,2));
 end

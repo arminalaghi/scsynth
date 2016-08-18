@@ -17,7 +17,7 @@
 %% doi: 10.1109/ICCD.2013.6657023
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,
+function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
                               singleWeightLFSR=true)
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
@@ -52,7 +52,7 @@ function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,
   
   VerilogCoreReSCGenerator(length(coeff) - 1, ReSCName);
   
-  VerilogSCWrapperGenerator(coeff, N, m_input, m_coeff, randName, ReSCName,
+  VerilogSCWrapperGenerator(coeff, N, m_input, m_coeff, randName, ReSCName,...
                             wrapperName, singleWeightLFSR);
   
   VerilogReSCTestGenerator(coeff, N, m_input, m_coeff, wrapperName, testName);

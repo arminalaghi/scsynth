@@ -65,7 +65,7 @@ function [coefs, obj, H, b, c] = MultivariateBernAppr(vals, degrees)
 
 		  H(row,col) = 1;
       for i=1:length(degrees)
-        fhandle = @(x)(BernBasis(x, indices1(i), degrees(i)) *
+        fhandle = @(x)(BernBasis(x, indices1(i), degrees(i)) *...
                        BernBasis(x, indices2(i), degrees(i)));
         H(row,col) *= quad(fhandle, 0, 1, tol);
       end

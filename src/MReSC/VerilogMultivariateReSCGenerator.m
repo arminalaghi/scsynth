@@ -20,8 +20,9 @@
 %% doi: 10.1109/ICCD.2013.6657023
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input, m_coeff,
-                                          nameSuffix, singleWeightLFSR=true)
+function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input,...
+                                          m_coeff, nameSuffix,...
+                                          singleWeightLFSR=true)
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
   %Lilja for approximating the computation of any function with domain and range
@@ -59,11 +60,11 @@ function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input, m_coeff,
   
   VerilogCoreMultivariateReSCGenerator(degrees, ReSCName);
   
-  VerilogMultivariateSCWrapperGenerator(coeff, degrees, N, m_input, m_coeff,
-                                        randName, ReSCName, wrapperName,
+  VerilogMultivariateSCWrapperGenerator(coeff, degrees, N, m_input, m_coeff,...
+                                        randName, ReSCName, wrapperName,...
                                         singleWeightLFSR);
   
-  VerilogMultivariateReSCTestGenerator(coeff, degrees, N, m_input, m_coeff,
+  VerilogMultivariateReSCTestGenerator(coeff, degrees, N, m_input, m_coeff,...
                                        wrapperName, testName);
  
   switch(log2(N))

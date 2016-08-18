@@ -29,17 +29,17 @@ function RecursiveCaseBuilder (fp, degrees, bits, w, x, i, tabs)
   %          indentation clean
   
   if (x > length(degrees))
-    fprintf(fp, "%s%d'd%d: z = w[%d];\n", tabs, bits(x - 1), i, w);
+    fprintf(fp, '%s%d\''d%d: z = w[%d];\n', tabs, bits(x - 1), i, w);
   else
     if (x == 1)
       fprintf(fp, '%scase(sum_%d)\n', tabs, x);
     else
-      fprintf(fp, "%s%d'd%d: case(sum_%d)\n", tabs, bits(x - 1), i, x);
+      fprintf(fp, '%s%d''d%d: case(sum_%d)\n', tabs, bits(x - 1), i, x);
     end
     for j=0:degrees(x)
       newTabs = sprintf('%s\t', tabs);
-      RecursiveCaseBuilder(fp, degrees, bits,
-                           w + prod(degrees(x+1:length(degrees)) + 1) * j,
+      RecursiveCaseBuilder(fp, degrees, bits,...
+                           w + prod(degrees(x+1:length(degrees)) + 1) * j,...
                            x + 1, j, newTabs);
     end
     fprintf(fp, '%sdefault: z = 0;\n', newTabs);
