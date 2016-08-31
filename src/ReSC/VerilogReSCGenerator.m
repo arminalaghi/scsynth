@@ -15,10 +15,18 @@
 %% design," 2013 IEEE 31st International Conference on Computer Design (ICCD),
 %% Asheville, NC, 2013, pp. 39-46.
 %% doi: 10.1109/ICCD.2013.6657023
+%%
+%% Gupta, P. K. and Kumaresan, R. 1988. Binary multiplication with PN sequences.
+%% IEEE Trans. Acoustics Speech Signal Process. 36, 603–606.
+%%
+%% B. D. Brown and H. C. Card, "Stochastic neural computation. I. Computational
+%% elements," in IEEE Transactions on Computers, vol. 50, no. 9, pp. 891-905,
+%% Sep 2001. doi: 10.1109/12.954505
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
-                              singleWeightLFSR=true)
+                              ConstantRNG='SharedLFSR', InputRNG='LFSR',...
+                              ConstantSNG='Comparator', InputSNG='Comparator')
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
   %Lilja for approximating the computation of any function with domain and range
@@ -30,8 +38,7 @@ function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
   %                               inputs and outputs between binary and
   %                               stochastic representations.
   % ReSC_test_[nameSuffix].v - A testbench for the system.
-  % LFSR_[log(N)]_bit_added_zero_[nameSuffix].v - The RNG for generating
-  %                                               stochastic numbers.
+  % [RNG name]_[nameSuffix].v - The RNG for generating stochastic numbers.
   
   %Parameters:
   % coeff     : a list of coefficients of the Bernstein polynomial; each
@@ -43,65 +50,62 @@ function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
   %             module
   
   %Optional Parameters:
-  % singleWeightLFSR: Use the same LFSR for every constant. (Default true)
+  % ConstantRNG: Choose the method for generating the random numbers used in
+  %              stochastic generation of the constants. Options:
+  %                'SharedLFSR' (default) - Use one LFSR for all weights
+  %                'LFSR' - Use a unique LFSR for each weight
+  %                'Counter' - Count from 0 to 2^m in order
+  %                'ReverseCounter' - Count from 0 to 2^m, but reverse the
+  %                                    order of the bits
+  % InputRNG: Choose the method for generating the random numbers used in
+  %           stochastic generation of the input values. Options:
+  %             'LFSR' - Use a unique LFSR for each input
+  %             'SingleLFSR' - Use one longer LFSR, giving a unique n-bit
+  %                            segment tp each copy of the inputs
+  % ConstantSNG: Choose the method for generating stochastic versions of the
+  %              the constants. Options:
+  %                'Comparator' - Compare the values to random numbers (default)
+  %                'Majority' - A series of cascading majority gates
+  %                'WBG' - Circuit defined in Gupta and Kumaresan (1988)
+  %                'Mux' - A series of cascading multiplexers
+  % InputSNG: Choose the method for generating stochastic versions of the
+  %           inputs. Options are the same as for ConstantSNG.
   
   ReSCName = sprintf('ReSC_%s', nameSuffix);
   wrapperName = sprintf('ReSC_wrapper_%s', nameSuffix);
   testName = sprintf('ReSC_test_%s', nameSuffix);
-  randName = sprintf('LFSR_%d_bit_added_zero_%s', log2(N), nameSuffix);
+  
+  LFSR = false;
+  switch(ConstantRNG)
+    case {'SharedLFSR', 'LFSR'}
+      constRandName = sprintf('LFSR_%d_bit_added_zero_%s', log2(N), nameSuffix);
+      VerilogLFSRGenerator(log2(N), true, constRandName);
+      LFSR = true;
+    case 'Counter'
+      constRandName = sprintf('counter_%d_bit_%s', log2(N), nameSuffix);
+      VerilogCounterGenerator(log2(N), false, constRandName);
+    case 'ReverseCounter'
+      constRandName = sprintf('reversed_counter_%d_bit_%s', log2(N), nameSuffix);
+      VerilogCounterGenerator(log2(N), true, constRandName);
+  end
+  
+  switch(InputRNG)
+    case 'LFSR'
+      inputRandName = sprintf('LFSR_%d_bit_added_zero_%s', log2(N), nameSuffix);
+      if !LFSR
+        VerilogLFSRGenerator(log2(N), true, constRandName);
+      end
+    case 'SingleLFSR'
+      inputRandName = sprintf('LFSR_%d_bit_added_zero_%s',...
+                              log2(N) * (length(coeff) - 1), nameSuffix);
+      VerilogLFSRGenerator(log2(N) * (length(coeff) - 1), true, inputRandName);
+  end
   
   VerilogCoreReSCGenerator(length(coeff) - 1, ReSCName);
   
-  VerilogSCWrapperGenerator(coeff, N, m_input, m_coeff, randName, ReSCName,...
-                            wrapperName, singleWeightLFSR);
+  VerilogSCWrapperGenerator(coeff, N, m_input, m_coeff, constRandName,...
+                            inputRandName, ReSCName, wrapperName,...
+                            ConstantRNG, InputRNG, ContantSNG, InputSNG);
   
   VerilogReSCTestGenerator(coeff, N, m_input, m_coeff, wrapperName, testName);
- 
-  switch(log2(N))
-		case 3
-			taps = [3, 2];
-		case 4
-			taps = [4, 3];
-		case 5
-			taps = [5, 3];
-		case 6
-			taps = [6, 5];
-		case 7
-			taps = [7, 6];
-		case 8
-			taps = [8, 7, 6, 1];
-		case 9
-			taps = [9, 5];
-		case 10
-			taps = [10, 7];
-		case 11
-			taps = [11, 9];
-		case 12
-			taps = [12, 11, 10, 4];
-		case 13
-			taps = [13, 12, 11, 8];
-		case 14
-			taps = [14, 13, 12, 2];
-		case 15
-			taps = [15, 14];
-		case 16
-			taps = [16, 15, 13, 4];
-		case 17
-			taps = [17, 14];
-		case 18
-			taps = [18, 11];
-		case 19
-			taps = [19, 18, 17, 14];
-		case 20
-			taps = [20, 17];
-		case 24
-			taps = [24, 23, 22, 17];
-		case 32
-			taps = [32, 31, 30, 10];
-
-		otherwise
-			taps = [3, 2];
-	end
-  
-  VerilogLFSRGenerator(log2(N), taps, true, randName);
 end

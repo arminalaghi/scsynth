@@ -14,30 +14,62 @@
 %% A. Alaghi and J. P. Hayes, "Exploiting correlation in stochastic circuit
 %% design," 2013 IEEE 31st International Conference on Computer Design (ICCD),
 %% Asheville, NC, 2013, pp. 39-46.
-%% doi: 10.1109/ICCD.2013.6657023
+%% doi: 10.1109/ICCD.2013.6657023\
+%%
+%% Gupta, P. K. and Kumaresan, R. 1988. Binary multiplication with PN sequences.
+%% IEEE Trans. Acoustics Speech Signal Process. 36, 603–606.
+%%
+%% B. D. Brown and H. C. Card, "Stochastic neural computation. I. Computational
+%% elements," in IEEE Transactions on Computers, vol. 50, no. 9, pp. 891-905,
+%% Sep 2001. doi: 10.1109/12.954505
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff, randModule,...
+function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,... 
+                                    constRandModule, inputRandModule,...
                                     ReSCModule, moduleName,...
-                                    singleWeightLFSR=true)
+                                    ConstantRNG='SharedLFSR',...
+                                    InputRNG='LFSR',...
+                                    ConstantSNG='Comparator',...
+                                    InputSNG='Comparator')
 
   %Generates a Verilog module that wraps an ReSC unit with conversions
   %from binary to stochastic on the inputs and from stochastic to binary
   %on the outputs.
   
   %Parameters:
-  % coeff     : a list of coefficients of the Bernstein polynomial; each
-  %             coefficient should fall within the unit interval
-  % N         : the length of the stochastic bitstreams, must be a power of 2
-  % m_input   : the length in bits of the input, at most log2(N)
-  % m_coeff   : the length in bits of the coefficients, at most log2(N)
-  % randModule: name of the randomizing Verilog module to be used for
-  %             stochastic number generation
-  % ReSCModule: name of the ReSC module to wrap
-  % moduleName: the name of the verilog module
+  % coeff          : a list of coefficients of the Bernstein polynomial; each
+  %                  coefficient should fall within the unit interval
+  % N              : the length of the stochastic bitstreams, must be a power of 2
+  % m_input        : the length in bits of the input, at most log2(N)
+  % m_coeff        : the length in bits of the coefficients, at most log2(N)
+  % constRandModule: name of the randomizing Verilog module to be used for
+  %                  stochastic number generation for weights
+  % inputRandModule: name of the randomizing Verilog module to be used for
+  %                  stochastic number generation for inputs
+  % ReSCModule     : name of the ReSC module to wrap
+  % moduleName     : the name of the verilog module
   
   %Optional Parameters:
-  % singleWeightLFSR: Use the same LFSR for every constant. (Default true)
+  % ConstantRNG: Choose the method for generating the random numbers used in
+  %              stochastic generation of the constants. Options:
+  %                'SharedLFSR' (default) - Use one LFSR for all weights
+  %                'LFSR' - Use a unique LFSR for each weight
+  %                'Counter' - Count from 0 to 2^m in order
+  %                'ReverseCounter' - Count from 0 to 2^m, but reverse the
+  %                                    order of the bits
+  % InputRNG: Choose the method for generating the random numbers used in
+  %           stochastic generation of the input values. Options:
+  %             'LFSR' - Use a unique LFSR for each input
+  %             'SingleLFSR' - Use one longer LFSR, giving a unique n-bit
+  %                            segment tp each copy of the inputs
+  % ConstantSNG: Choose the method for generating stochastic versions of the
+  %              the constants. Options:
+  %                'Comparator' - Compare the values to random numbers (default)
+  %                'Majority' - A series of cascading majority gates
+  %                'WBG' - Circuit defined in Gupta and Kumaresan (1988)
+  %                'Mux' - A series of cascading multiplexers
+  % InputSNG: Choose the method for generating stochastic versions of the
+  %           inputs. Options are the same as for ConstantSNG.
   
   m = log2(N);
   decimal_coeffs = round(coeff * 2^m_coeff) / (2^m_coeff) * N;
@@ -83,54 +115,179 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff, randModule,...
 	fprintf(fp, '\twire running;\n\n');
 
   %binary to stochastic conversion for the x values
-  fprintf(fp, '\t//RNGs for binary->stochastic conversion\n'); 
-  for i=0:degree - 1
-    fprintf(fp, '\twire [%d:0] randx%d;\n', m - 1, i);
-    fprintf(fp, '\t%s rand_gen_x_%d (\n', randModule, i);
-		fprintf(fp, '\t\t.seed (%d''d%d),\n', m, round(N*i/(degree*2+1)));
-		fprintf(fp, '\t\t.data (randx%d),\n', i);
-		fprintf(fp, '\t\t.enable (running),\n');
-		fprintf(fp, '\t\t.restart (init),\n');
-		fprintf(fp, '\t\t.clk (clk),\n');
-		fprintf(fp, '\t\t.reset (reset)\n');0
-		fprintf(fp, '\t);\n');
-    if (m_input < m)
-      fprintf(fp, '\tassign x_stoch[%d] = randx%d < x_bin_shifted;\n\n', i, i);
-    else
-      fprintf(fp, '\tassign x_stoch[%d] = randx%d < x_bin;\n\n',  i, i);
+  fprintf(fp, '\t//RNGs for binary->stochastic conversion\n');
+  switch(InputRNG)
+    case 'LFSR'
+      for i=0:degree - 1
+        fprintf(fp, '\twire [%d:0] randx%d;\n', m - 1, i);
+        fprintf(fp, '\t%s rand_gen_x_%d (\n', inputRandModule, i);
+		    fprintf(fp, '\t\t.seed (%d''d%d),\n', m, round(N*i/(degree*2+1)));
+        fprintf(fp, '\t\t.data (randx%d),\n', i);
+		    fprintf(fp, '\t\t.enable (running),\n');
+        fprintf(fp, '\t\t.restart (init),\n');
+	  	  fprintf(fp, '\t\t.clk (clk),\n');
+	    	fprintf(fp, '\t\t.reset (reset)\n');0
+	    	fprintf(fp, '\t);\n');
+      end
+    case 'SingleLFSR'
+      fprintf(fp, '\twire [%d:0] randx;\n', m * degree - 1);
+      fprintf(fp, '\t%s rand_gen_x (\n', inputRandModule);
+		  fprintf(fp, '\t\t.seed (%d''d%d),\n', m * degree, 1);
+      fprintf(fp, '\t\t.data (randx),\n', i);
+		  fprintf(fp, '\t\t.enable (running),\n');
+      fprintf(fp, '\t\t.restart (init),\n');
+	    fprintf(fp, '\t\t.clk (clk),\n');
+	  	fprintf(fp, '\t\t.reset (reset)\n');0
+	    fprintf(fp, '\t);\n');
+      for i=0:degree-1
+        fprintf(fp, '\twire[%d:0] randx%d;\n', m - 1, i);
+        fprintf(fp, '\tassign randx%d = randx[%d:%d];\n', i, (i+1)*m-1, i+m);
+      end
+  end
+  
+  if (m_input < m)
+    x_bin = 'x_bin_shifted';
+  else
+    x_bin = 'x_bin';
+  end
+  
+  for i=0:degree-1
+    switch(InputSNG)
+      case 'Comparator'
+          fprintf(fp, '\tassign x_stoch[%d] = randx%d < %s;\n',  i, i, x_bin);
+      case 'Majority'
+        fprintf(fp, '\twire majority0;\n');
+        fprintf(fp, '\tassign majority0 = randx%d[0] & %s[0]', x_bin);
+        for j=1:m-2
+          fprintf(fp, '\twire majority%d;\n');
+          fprintf(fp, ['\tassign majority%d = (randx%d[%d] & %s[%d]) | ',...
+                       '(randx%d[%d] & majority%d) | (%s[%d] & majority%d'...
+                       ');\n'], j, i, j, x_bin, j, i, j, j-1, x_bin, j, j-1);
+        end
+        fprintf(fp, ['\tassign x_stoch[%d] = (randx%d[%d] & %s[%d]) | ',...
+                     '(randx%d[%d] & majority%d) | (%s[%d] & majority%d'...
+                     ');\n\n'], i, i, m-1, x_bin, m-1, i, m-1, m-2, x_bin,...
+                m-1, m-2);
+      case 'WBG'
+        and = sprintf('randx%d[%d]', i, m-1);
+        for j=m-1:1
+          fprintf(fp, '\twire wbg%d;\n', j);
+          fprintf(fp, '\tassign wbg%d = %s & %s[%d];\n', j, and, x_bin, j);
+          and = sprintf('randx%d[%d] & ~%s', i, j-1, and);
+        end
+        fprintf(fp, '\tassign x_stoch[%d] = %s & %s[0] ', i, and, x_bin);
+        for j=1:m-1
+          fprintf(fp, '| wbg%d', j);
+        end
+        fprintf(fp, ';\n');
+      case 'Mux'
+        fprintf(fp, '\twire mux0;\n');
+        fprintf(fp, '\tassign mux0 = randx%d[0] & %s[0]', x_bin);
+        for j=1:m-2
+          fprintf(fp, '\twire mux%d;\n');
+          fprintf(fp, '\tassign mux%d = randx%d[%d] ? %s[%d] : mux%d;\n', j,...
+                  i, j, x_bin, j, j-1);
+        end
+        fprintf(fp, '\tassign x_stoch[%d] = randx%d[%d]? %s[%d]:mux%d;\n\n',...
+                i, i, m-1, x_bin, m-1, m-2);
     end
   end
   
   %binary to stochastic conversion for the coefficients
-  if singleWeightLFSR
-    fprintf(fp, '\twire [%d:0] randw;\n', m - 1);
-    fprintf(fp, '\t%s rand_gen_w (\n', randModule);
-	  fprintf(fp, '\t\t.seed (%d''d%d),\n', m, round(N * 2 / 3));
-	  fprintf(fp, '\t\t.data (randw),\n');
-	  fprintf(fp, '\t\t.enable (running),\n');
-	  fprintf(fp, '\t\t.restart (init),\n');
-	  fprintf(fp, '\t\t.clk (clk),\n');
-	  fprintf(fp, '\t\t.reset (reset)\n');
-	  fprintf(fp, '\t);\n');
-    for i=0:degree
-      fprintf(fp, '\tassign w_stoch[%d] = randw < w%d_bin;\n\n',  i, i);
-    end
-  else
-    for i=0:degree
-      fprintf(fp, '\twire [%d:0] randw%d;\n', m - 1, i);
-      fprintf(fp, '\t%s rand_gen_w_%d (\n', randModule, i);
-	  	fprintf(fp, '\t\t.seed (%d''d%d),\n', m,...
-              round(N*(i+degree)/(degree*2+1)));
-	  	fprintf(fp, '\t\t.data (randw%d),\n', i);
-	  	fprintf(fp, '\t\t.enable (running),\n');
-	  	fprintf(fp, '\t\t.restart (init),\n');
-	  	fprintf(fp, '\t\t.clk (clk),\n');
-	  	fprintf(fp, '\t\t.reset (reset)\n');
-	  	fprintf(fp, '\t);\n');
-      fprintf(fp, '\tassign w_stoch[%d] = randw%d < w%d_bin;\n\n',  i, i, i);
+  switch(ConstantRNG)
+    case 'SharedLFSR'
+      fprintf(fp, '\twire [%d:0] randw;\n', m - 1);
+      fprintf(fp, '\t%s rand_gen_w (\n', constRandModule);
+	    fprintf(fp, '\t\t.seed (%d''d%d),\n', m, round(N * 2 / 3));
+	    fprintf(fp, '\t\t.data (randw),\n');
+	    fprintf(fp, '\t\t.enable (running),\n');
+	    fprintf(fp, '\t\t.restart (init),\n');
+	    fprintf(fp, '\t\t.clk (clk),\n');
+	    fprintf(fp, '\t\t.reset (reset)\n');
+	    fprintf(fp, '\t);\n');
+      for i=0:degree
+        fprintf(fp, '\twire [%d:0] randw%d;\n', m - 1, i);
+        fprintf(fp, '\tassign randw%d = randw;\n');
+      end
+    case 'LFSR'
+      for i=0:degree
+        fprintf(fp, '\twire [%d:0] randw%d;\n', m - 1, i);
+        fprintf(fp, '\t%s rand_gen_w_%d (\n', constRandModule, i);
+	  	  fprintf(fp, '\t\t.seed (%d''d%d),\n', m,...
+                round(N*(i+degree)/(degree*2+1)));
+        fprintf(fp, '\t\t.data (randw%d),\n', i);
+	  	  fprintf(fp, '\t\t.enable (running),\n');
+	  	  fprintf(fp, '\t\t.restart (init),\n');
+	  	  fprintf(fp, '\t\t.clk (clk),\n');
+	  	  fprintf(fp, '\t\t.reset (reset)\n');
+	  	  fprintf(fp, '\t);\n');
+        if coeff(i+1) == 1
+          fprintf(fp, '\tassign w_stoch[%d] = 1;\n\n', i);
+        else
+          fprintf(fp, '\tassign w_stoch[%d] = randw%d < w%d_bin;\n\n',  i, i, i);
+        end
+      end
+    case {'Counter', 'ReverseCounter'}
+      fprintf(fp, '\twire [%d:0] randw;\n', m - 1);
+      fprintf(fp, '\t%s rand_gen_w (\n', constRandModule);
+	    fprintf(fp, '\t\t.out (randw),\n');
+	    fprintf(fp, '\t\t.enable (running),\n');
+	    fprintf(fp, '\t\t.restart (init),\n');
+	    fprintf(fp, '\t\t.clk (clk),\n');
+	    fprintf(fp, '\t\t.reset (reset)\n');
+	    fprintf(fp, '\t);\n');
+      for i=0:degree
+        fprintf(fp, '\twire [%d:0] randw%d;\n', m - 1, i);
+        fprintf(fp, '\tassign randw%d = randw;\n');
+      end
+  end
+  
+  for i=0:degree
+    if coeff(i+1) == 1
+       fprintf(fp, '\tassign w_stoch[%d] = 1;\n\n', i);
+    else
+      switch(ConstantSNG)
+        case 'Comparator'
+            fprintf(fp, '\tassign w_stoch[%d] = randw%d < w%d_bin;\n',  i, i, i);
+        case 'Majority'
+          fprintf(fp, '\twire majorityw0;\n');
+          fprintf(fp, '\tassign majorityw0 = randw%d[0] & w%d_bin[0]', i);
+          for j=1:m-2
+            fprintf(fp, '\twire majorityw%d;\n');
+            fprintf(fp, ['\tassign majorityw%d = (randw%d[%d] & w%d_bin[%d]) | ',...
+                         '(randw%d[%d] & majorityw%d) | (w%d_bin[%d] & majorityw%d'...
+                         ');\n'], j, i, j, i, j, i, j, j-1, i, j, j-1);
+          end
+          fprintf(fp, ['\tassign w_stoch[%d] = (randw%d[%d] & %s[%d]) | ',...
+                       '(randw%d[%d] & majorityw%d) | (%s[%d] & majorityw%d'...
+                       ');\n\n'], i, i, m-1, i, m-1, i, m-1, m-2, i,...
+                  m-1, m-2);
+        case 'WBG'
+          and = sprintf('randw%d[%d]', i, m-1);
+          for j=m-1:1
+            fprintf(fp, '\twire wbgw%d;\n', j);
+            fprintf(fp, '\tassign wbgw%d = and & w%d_bin[%d];\n', j, and, i, j);
+            and = sprintf('randw%d[%d] & ~%s', i, j-1, and);
+          end
+          fprintf(fp, '\tassign w_stoch[%d] = %s & w%d_bin[0] ', i, and, i);
+          for j=1:m-1
+            fprintf(fp, '| wbgw%d', j);
+          end
+          fprintf(fp, ';\n');
+        case 'Mux'
+          fprintf(fp, '\twire muxw0;\n');
+          fprintf(fp, '\tassign muxw0 = randw%d[0] & %s[0]', x_bin);
+          for j=1:m-2
+            fprintf(fp, '\twire muxw%d;\n');
+            fprintf(fp, '\tassign muxw%d = randw%d[%d] ? w%d_bin[%d] : muxw%d;\n', j,...
+                    i, j, x_bin, j, j-1);
+          end
+          fprintf(fp, '\tassign w_stoch[%d] = randw%d[%d]? %s[%d]:muxw%d;\n\n',...
+                  i, i, m-1, x_bin, m-1, m-2);
+      end
     end
   end
-    
+  
   %initialize the core ReSC module
 	fprintf(fp, '\t%s ReSC (\n', ReSCModule);
 	fprintf(fp, '\t\t.x (x_stoch),\n');
@@ -180,6 +337,5 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff, randModule,...
 	fprintf(fp, '\t\tdone <= 0;\n');
 	fprintf(fp, '\tend\n');
   fprintf(fp, 'endmodule\n');
-
   fclose(fp);
 end
