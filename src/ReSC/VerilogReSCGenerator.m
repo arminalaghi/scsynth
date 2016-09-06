@@ -68,8 +68,11 @@ function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
   %                'Majority' - A series of cascading majority gates
   %                'WBG' - Circuit defined in Gupta and Kumaresan (1988)
   %                'Mux' - A series of cascading multiplexers
+  %                'HardWire' - A hardwired series of and and or gates with
+  %                             space-saving optimizations.
   % InputSNG: Choose the method for generating stochastic versions of the
-  %           inputs. Options are the same as for ConstantSNG.
+  %           inputs. Options are the same as for ConstantSNG with the exception
+  %           of 'HardWire'.
   
   ReSCName = sprintf('ReSC_%s', nameSuffix);
   wrapperName = sprintf('ReSC_wrapper_%s', nameSuffix);
@@ -105,7 +108,7 @@ function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
   
   VerilogSCWrapperGenerator(coeff, N, m_input, m_coeff, constRandName,...
                             inputRandName, ReSCName, wrapperName,...
-                            ConstantRNG, InputRNG, ContantSNG, InputSNG);
+                            ConstantRNG, InputRNG, ConstantSNG, InputSNG);
   
   VerilogReSCTestGenerator(coeff, N, m_input, m_coeff, wrapperName, testName);
 end

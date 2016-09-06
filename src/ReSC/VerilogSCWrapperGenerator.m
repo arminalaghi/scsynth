@@ -68,8 +68,11 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
   %                'Majority' - A series of cascading majority gates
   %                'WBG' - Circuit defined in Gupta and Kumaresan (1988)
   %                'Mux' - A series of cascading multiplexers
+  %                'HardWire' - A hardwired series of and and or gates with
+  %                             space-saving optimizations.
   % InputSNG: Choose the method for generating stochastic versions of the
-  %           inputs. Options are the same as for ConstantSNG.
+  %           inputs. Options are the same as for ConstantSNG with the exception
+  %           of 'HardWire'.
   
   m = log2(N);
   decimal_coeffs = round(coeff * 2^m_coeff) / (2^m_coeff) * N;
@@ -101,10 +104,17 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
   end
   
   %define the constant coefficients
-  fprintf(fp, '\t//the weights of the Bernstein polynomial\n');
-  for i=0:degree
-    fprintf(fp, "\treg [%d:0] w%d_bin = %d\'d%d;\n", m - 1, i, m,...
-            decimal_coeffs(i+1));
+  if !strcmp(ConstantSNG, 'HardWire')
+    fprintf(fp, '\t//the weights of the Bernstein polynomial\n');
+    for i=0:degree
+      fprintf(fp, '\treg [%d:0] w%d_bin = %d\''d%d;\n', m - 1, i, m,...
+              decimal_coeffs(i+1));
+    end
+  else
+    for i=0:degree
+		  fprintf(fp, '\twire wire%d_1;\n', i);
+	  end
+    prob_table = zeros(1, 4);
   end
 
   %declare internal wires
@@ -127,7 +137,7 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
         fprintf(fp, '\t\t.restart (init),\n');
 	  	  fprintf(fp, '\t\t.clk (clk),\n');
 	    	fprintf(fp, '\t\t.reset (reset)\n');0
-	    	fprintf(fp, '\t);\n');
+	    	fprintf(fp, '\t);\n\n');
       end
     case 'SingleLFSR'
       fprintf(fp, '\twire [%d:0] randx;\n', m * degree - 1);
@@ -141,7 +151,7 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
 	    fprintf(fp, '\t);\n');
       for i=0:degree-1
         fprintf(fp, '\twire[%d:0] randx%d;\n', m - 1, i);
-        fprintf(fp, '\tassign randx%d = randx[%d:%d];\n', i, (i+1)*m-1, i+m);
+        fprintf(fp, '\tassign randx%d = randx[%d:%d];\n\n', i, (i+1)*m-1, i*m);
       end
   end
   
@@ -154,42 +164,44 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
   for i=0:degree-1
     switch(InputSNG)
       case 'Comparator'
-          fprintf(fp, '\tassign x_stoch[%d] = randx%d < %s;\n',  i, i, x_bin);
+          fprintf(fp, '\tassign x_stoch[%d] = randx%d < %s;\n\n',  i, i, x_bin);
       case 'Majority'
-        fprintf(fp, '\twire majority0;\n');
-        fprintf(fp, '\tassign majority0 = randx%d[0] & %s[0]', x_bin);
+        fprintf(fp, '\twire majority%d_0;\n', i);
+        fprintf(fp, '\tassign majority%d_0 = randx%d[0] & %s[0];\n', i, i,
+                x_bin);
         for j=1:m-2
-          fprintf(fp, '\twire majority%d;\n');
-          fprintf(fp, ['\tassign majority%d = (randx%d[%d] & %s[%d]) | ',...
-                       '(randx%d[%d] & majority%d) | (%s[%d] & majority%d'...
-                       ');\n'], j, i, j, x_bin, j, i, j, j-1, x_bin, j, j-1);
+          fprintf(fp, '\twire majority%d_%d;\n', i, j);
+          fprintf(fp, ['\tassign majority%d_%d = (randx%d[%d] & %s[%d]) | ',...
+                       '(randx%d[%d] & majority%d_%d) | (%s[%d] & majority%d'...
+                       '_%d);\n'], i, j, i, j, x_bin, j, i, j, i, j-1, x_bin,...
+                  j, i, j-1);
         end
         fprintf(fp, ['\tassign x_stoch[%d] = (randx%d[%d] & %s[%d]) | ',...
-                     '(randx%d[%d] & majority%d) | (%s[%d] & majority%d'...
-                     ');\n\n'], i, i, m-1, x_bin, m-1, i, m-1, m-2, x_bin,...
-                m-1, m-2);
+                     '(randx%d[%d] & majority%d_%d) | (%s[%d] & majority%d_%'...
+                     'd);\n\n'], i, i, m-1, x_bin, m-1, i, m-1, i, m-2,...
+                x_bin, m-1, i, m-2);
       case 'WBG'
         and = sprintf('randx%d[%d]', i, m-1);
-        for j=m-1:1
-          fprintf(fp, '\twire wbg%d;\n', j);
-          fprintf(fp, '\tassign wbg%d = %s & %s[%d];\n', j, and, x_bin, j);
+        for j=fliplr(1:m-1)
+          fprintf(fp, '\twire wbg%d_%d;\n', i, j);
+          fprintf(fp, '\tassign wbg%d_%d = %s & %s[%d];\n', i, j, and, x_bin, j);
           and = sprintf('randx%d[%d] & ~%s', i, j-1, and);
         end
-        fprintf(fp, '\tassign x_stoch[%d] = %s & %s[0] ', i, and, x_bin);
+        fprintf(fp, '\tassign x_stoch[%d] = %s & %s[0]', i, and, x_bin);
         for j=1:m-1
-          fprintf(fp, '| wbg%d', j);
+          fprintf(fp, ' | wbg%d_%d', i, j);
         end
-        fprintf(fp, ';\n');
+        fprintf(fp, ';\n\n');
       case 'Mux'
-        fprintf(fp, '\twire mux0;\n');
-        fprintf(fp, '\tassign mux0 = randx%d[0] & %s[0]', x_bin);
+        fprintf(fp, '\twire mux%d_0;\n', i);
+        fprintf(fp, '\tassign mux%d_0 = randx%d[0] & %s[0];\n', i, i, x_bin);
         for j=1:m-2
-          fprintf(fp, '\twire mux%d;\n');
-          fprintf(fp, '\tassign mux%d = randx%d[%d] ? %s[%d] : mux%d;\n', j,...
-                  i, j, x_bin, j, j-1);
+          fprintf(fp, '\twire mux%d_%d;\n', i, j);
+          fprintf(fp, '\tassign mux%d_%d = randx%d[%d] ? %s[%d] : mux%d_%d;\n',...
+                  i, j, i, j, x_bin, j, i, j-1);
         end
-        fprintf(fp, '\tassign x_stoch[%d] = randx%d[%d]? %s[%d]:mux%d;\n\n',...
-                i, i, m-1, x_bin, m-1, m-2);
+        fprintf(fp, '\tassign x_stoch[%d] = randx%d[%d]? %s[%d]:mux%d_%d;\n\n',...
+                i, i, m-1, x_bin, m-1, i, m-2);
     end
   end
   
@@ -204,10 +216,10 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
 	    fprintf(fp, '\t\t.restart (init),\n');
 	    fprintf(fp, '\t\t.clk (clk),\n');
 	    fprintf(fp, '\t\t.reset (reset)\n');
-	    fprintf(fp, '\t);\n');
+	    fprintf(fp, '\t);\n\n');
       for i=0:degree
         fprintf(fp, '\twire [%d:0] randw%d;\n', m - 1, i);
-        fprintf(fp, '\tassign randw%d = randw;\n');
+        fprintf(fp, '\tassign randw%d = randw;\n\n', i);
       end
     case 'LFSR'
       for i=0:degree
@@ -220,12 +232,7 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
 	  	  fprintf(fp, '\t\t.restart (init),\n');
 	  	  fprintf(fp, '\t\t.clk (clk),\n');
 	  	  fprintf(fp, '\t\t.reset (reset)\n');
-	  	  fprintf(fp, '\t);\n');
-        if coeff(i+1) == 1
-          fprintf(fp, '\tassign w_stoch[%d] = 1;\n\n', i);
-        else
-          fprintf(fp, '\tassign w_stoch[%d] = randw%d < w%d_bin;\n\n',  i, i, i);
-        end
+	  	  fprintf(fp, '\t);\n\n');
       end
     case {'Counter', 'ReverseCounter'}
       fprintf(fp, '\twire [%d:0] randw;\n', m - 1);
@@ -235,55 +242,113 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
 	    fprintf(fp, '\t\t.restart (init),\n');
 	    fprintf(fp, '\t\t.clk (clk),\n');
 	    fprintf(fp, '\t\t.reset (reset)\n');
-	    fprintf(fp, '\t);\n');
+	    fprintf(fp, '\t);\n\n');
       for i=0:degree
         fprintf(fp, '\twire [%d:0] randw%d;\n', m - 1, i);
-        fprintf(fp, '\tassign randw%d = randw;\n');
+        fprintf(fp, '\tassign randw%d = randw;\n\n', i);
       end
   end
   
   for i=0:degree
     if coeff(i+1) == 1
-       fprintf(fp, '\tassign w_stoch[%d] = 1;\n\n', i);
+      fprintf(fp, '\tassign w_stoch[%d] = 1;\n\n', i);
+    elseif coeff(i+1) == 0
+      fprintf(fp, '\tassign w_stoch[%d] = 0;\n\n', i);
     else
       switch(ConstantSNG)
         case 'Comparator'
-            fprintf(fp, '\tassign w_stoch[%d] = randw%d < w%d_bin;\n',  i, i, i);
+            fprintf(fp, '\tassign w_stoch[%d] = randw%d < w%d_bin;\n\n', i,...
+                    i, i);
         case 'Majority'
-          fprintf(fp, '\twire majorityw0;\n');
-          fprintf(fp, '\tassign majorityw0 = randw%d[0] & w%d_bin[0]', i);
+          fprintf(fp, '\twire majorityw%d_0;\n', i);
+          fprintf(fp, '\tassign majorityw%d_0 = randw%d[0] & w%d_bin[0];\n',...
+                  i, i, i);
           for j=1:m-2
-            fprintf(fp, '\twire majorityw%d;\n');
-            fprintf(fp, ['\tassign majorityw%d = (randw%d[%d] & w%d_bin[%d]) | ',...
-                         '(randw%d[%d] & majorityw%d) | (w%d_bin[%d] & majorityw%d'...
-                         ');\n'], j, i, j, i, j, i, j, j-1, i, j, j-1);
+            fprintf(fp, '\twire majorityw%d_%d;\n', i, j);
+            fprintf(fp, ['\tassign majorityw%d_%d = (randw%d[%d] & w%d_bin[',...
+                         '%d]) | (randw%d[%d] & majorityw%d_%d) | (w%d_bin[%'...
+                         'd] & majorityw%d_%d);\n'], i, j, i, j, i, j, i, j,...
+                    i, j-1, i, j, i, j-1);
           end
-          fprintf(fp, ['\tassign w_stoch[%d] = (randw%d[%d] & %s[%d]) | ',...
-                       '(randw%d[%d] & majorityw%d) | (%s[%d] & majorityw%d'...
-                       ');\n\n'], i, i, m-1, i, m-1, i, m-1, m-2, i,...
-                  m-1, m-2);
+          fprintf(fp, ['\tassign w_stoch[%d] = (randw%d[%d] & w%d_bin[%d]) ',...
+                       '| (randw%d[%d] & majorityw%d_%d) | (w%d_bin[%d] & ma'...
+                       'jorityw%d_%d);\n\n'], i, i, m-1, i, m-1, i, m-1, i,...
+                  m-2, i, m-1, i, m-2);
         case 'WBG'
           and = sprintf('randw%d[%d]', i, m-1);
-          for j=m-1:1
-            fprintf(fp, '\twire wbgw%d;\n', j);
-            fprintf(fp, '\tassign wbgw%d = and & w%d_bin[%d];\n', j, and, i, j);
+          for j=fliplr(1:m-1)
+            fprintf(fp, '\twire wbgw%d_%d;\n', i, j);
+            fprintf(fp, '\tassign wbgw%d_%d = %s & w%d_bin[%d];\n', i, j,...
+                    and, i, j);
             and = sprintf('randw%d[%d] & ~%s', i, j-1, and);
           end
-          fprintf(fp, '\tassign w_stoch[%d] = %s & w%d_bin[0] ', i, and, i);
+          fprintf(fp, '\tassign w_stoch[%d] = %s & w%d_bin[0]', i, and, i);
           for j=1:m-1
-            fprintf(fp, '| wbgw%d', j);
+            fprintf(fp, ' | wbgw%d_%d', i, j);
           end
-          fprintf(fp, ';\n');
+          fprintf(fp, ';\n\n');
         case 'Mux'
-          fprintf(fp, '\twire muxw0;\n');
-          fprintf(fp, '\tassign muxw0 = randw%d[0] & %s[0]', x_bin);
+          fprintf(fp, '\twire muxw%d_0;\n', i);
+          fprintf(fp, '\tassign muxw%d_0 = randw%d[0] & w%d_bin[0];\n', i, i,...
+                  i);
           for j=1:m-2
-            fprintf(fp, '\twire muxw%d;\n');
-            fprintf(fp, '\tassign muxw%d = randw%d[%d] ? w%d_bin[%d] : muxw%d;\n', j,...
-                    i, j, x_bin, j, j-1);
+            fprintf(fp, '\twire muxw%d_%d;\n', i, j);
+            fprintf(fp, ['\tassign muxw%d_%d = randw%d[%d] ? w%d_bin[%d] : ',...
+                         'muxw%d_%d;\n'], i, j, i, j, i, j, i, j-1);
           end
-          fprintf(fp, '\tassign w_stoch[%d] = randw%d[%d]? %s[%d]:muxw%d;\n\n',...
-                  i, i, m-1, x_bin, m-1, m-2);
+          fprintf(fp, ['\tassign w_stoch[%d] = randw%d[%d]? w%d_bin[%d]:mux',...
+                       'w%d_%d;\n\n'], i, i, m-1, i, m-1, i, m-2);
+        case 'HardWire'
+          fprintf(fp, '\tassign w_stoch[%d] = wire%d_1;\n', i, i);
+          temp = round(coeff(i+1)*(2^m_coeff))/(2^m_coeff);
+          for j=1:m_coeff+1
+            if(temp == 1)
+              fprintf(fp, '\tassign wire%d_%d = 1;\n', i, j);
+              break;
+            elseif(temp == 0)
+              fprintf(fp, '\tassign wire%d_%d = 0;\n', i, j);
+              break;
+            else
+              if(size(find(prob_table(:, 1) == temp), 1) ~= 0) %prob exists
+                index = find(prob_table(:, 1) == temp);
+                temp2 = prob_table(index, :);
+                if(size(find(temp2(:, 2) == j), 1) ~= 0) %the same level
+                  index2 = find(temp2(:, 2) == j);
+                  temp2 = temp2(index2, :);
+                  fprintf(fp, '\tassign wire%d_%d = wire%d_%d;\n', i, j,...
+                          temp2(1, 3), temp2(1, 4));
+                  break;
+                end
+              end
+      
+              if(size(find(prob_table(:, 1) == 1 - temp), 1) ~= 0) %inverse
+                index = find(prob_table(:, 1) == 1 - temp);
+                temp2 = prob_table(index, :);
+                if(size(find(temp2(:, 2) == j), 1) ~= 0) %the same level
+                  index2 = find(temp2(:, 2) == j);
+                  temp2 = temp2(index2, :);
+                  fprintf(fp, '\tassign wire%d_%d = ~wire%d_%d;\n', i, j,...
+                          temp2(1, 3), temp2(1, 4));
+                  break;
+                end
+              end
+      
+              new_row = [temp, j, i, j];
+              prob_table = [prob_table ; new_row];
+              if(temp < 0.5)
+                fprintf(fp, '\twire wire%d_%d;\n', i, j+1);
+                fprintf(fp, '\tassign wire%d_%d = (randw%d[%d] & wire%d_%d);\n',...
+                        i, j, i, m_coeff - j, i, j+1);
+                temp = 2*temp;
+              else
+                fprintf(fp, '\twire wire%d_%d;\n', i, j+1);
+                fprintf(fp, '\tassign wire%d_%d = (randw%d[%d] | wire%d_%d);\n',...
+                        i, j, i, m_coeff - j, i, j+1);
+                temp = 2*temp - 1;
+              end
+            end
+          end
+          fprintf(fp, '\n');
       end
     end
   end

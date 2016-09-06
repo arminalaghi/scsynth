@@ -25,7 +25,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogReSCFromData (data, degree, N, m_input, m_coeff, nameSuffix,...
-                              ConstantRNG='SharedLFSR', InputRNG='LFSR'...
+                              ConstantRNG='SharedLFSR', InputRNG='LFSR',...
                               ConstantSNG='Comparator', InputSNG='Comparator')
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
@@ -72,8 +72,11 @@ function VerilogReSCFromData (data, degree, N, m_input, m_coeff, nameSuffix,...
   %                'Majority' - A series of cascading majority gates
   %                'WBG' - Circuit defined in Gupta and Kumaresan (1988)
   %                'Mux' - A series of cascading multiplexers
+  %                'HardWire' - A hardwired series of and and or gates with
+  %                             space-saving optimizations.
   % InputSNG: Choose the method for generating stochastic versions of the
-  %           inputs. Options are the same as for ConstantSNG.
+  %           inputs. Options are the same as for ConstantSNG with the exception
+  %           of 'HardWire'.
   addpath(genpath('.'));
   
   min_vals = min(data);

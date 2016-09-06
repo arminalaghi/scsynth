@@ -28,7 +28,7 @@ function VerilogReSCFromFunction (func, degree, N, m_input, m_coeff,...
                                   nameSuffix, ConstantRNG='SharedLFSR',...
                                   InputRNG='LFSR', ConstantSNG='Comparator',...
                                   InputSNG='Comparator', domain = [0, 1],...
-                                  granularity=100
+                                  granularity=100);
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
   %Lilja for approximating the computation of any function with domain and range
@@ -64,7 +64,7 @@ function VerilogReSCFromFunction (func, degree, N, m_input, m_coeff,...
   %                                    order of the bits
   % InputRNG: Choose the method for generating the random numbers used in
   %           stochastic generation of the input values. Options:
-  %             'LFSR' - Use a unique LFSR for each input
+  %             'LFSR' (default) - Use a unique LFSR for each input
   %             'SingleLFSR' - Use one longer LFSR, giving a unique n-bit
   %                            segment tp each copy of the inputs
   % ConstantSNG: Choose the method for generating stochastic versions of the
@@ -73,8 +73,11 @@ function VerilogReSCFromFunction (func, degree, N, m_input, m_coeff,...
   %                'Majority' - A series of cascading majority gates
   %                'WBG' - Circuit defined in Gupta and Kumaresan (1988)
   %                'Mux' - A series of cascading multiplexers
+  %                'HardWire' - A hardwired series of and and or gates with
+  %                             space-saving optimizations.
   % InputSNG: Choose the method for generating stochastic versions of the
-  %           inputs. Options are the same as for ConstantSNG.
+  %           inputs. Options are the same as for ConstantSNG with the exception
+  %           of 'HardWire'.
   % domain          : the domain over which to model  (Default [0, 1])
   % granularity     : the number of data points to sample in approximating the
   %                   the function
