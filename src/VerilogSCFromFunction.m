@@ -22,18 +22,25 @@
 %% B. D. Brown and H. C. Card, "Stochastic neural computation. I. Computational
 %% elements," in IEEE Transactions on Computers, vol. 50, no. 9, pp. 891-905,
 %% Sep 2001. doi: 10.1109/12.954505
+%%
+%% A. Alaghi and J. P. Hayes, "STRAUSS: Spectral Transform Use in Stochastic
+%% Circuit Synthesis," in IEEE Transactions on Computer-Aided Design of
+%% Integrated Circuits and Systems, vol. 34, no. 11, pp. 1770-1783, Nov. 2015.
+%% doi: 10.1109/TCAD.2015.2432138
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function VerilogReSCFromData (data, degree, N, m_input, m_coeff, nameSuffix,...
-                              ConstantRNG='SharedLFSR', InputRNG='LFSR',...
-                              ConstantSNG='Comparator', InputSNG='Comparator')
+function VerilogSCFromFunction (func, degree, N, m_input, m_coeff,...
+                                  nameSuffix, ConstantRNG='SharedLFSR',...
+                                  InputRNG='LFSR', ConstantSNG='HardWire',...
+                                  InputSNG='Comparator', SCModule='ReSC',...
+                                  domain = [0, 1], granularity=100);
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
   %Lilja for approximating the computation of any function with domain and range
   %in the unit interval as a stochastic circuit using a Bernstein polynomial
-  %approximation of the function. This function, given data representing a
-  %function, generates a complete ReSC module written in Verilog, containing
-  %the following files:
+  %approximation of the function. This function, given a function handle,
+  %generates a complete ReSC module or related STRAUSS module written in
+  %Verilog, containing the following files:
   % ReSC_[nameSuffix].v - The core stochastic module
   % ReSC_wrapper_[nameSuffix].v - A wrapper for the module that converts inputs
   %                               inputs and outputs between binary and
@@ -43,8 +50,7 @@ function VerilogReSCFromData (data, degree, N, m_input, m_coeff, nameSuffix,...
   %                                               stochastic numbers.
   
   %Parameters:
-  % data      : a matrix wherein each row contains an input and corresponding
-  %             output value of the function being modeled
+  % func      : a function handle for the function being modeled
   % degree    : the desired degree of the Bernstein polynomial underlying the
   %             ReSC (higher means a larger circuit but less error)
   % N         : the length of the stochastic bitstreams, must be a power of 2
@@ -63,28 +69,32 @@ function VerilogReSCFromData (data, degree, N, m_input, m_coeff, nameSuffix,...
   %                                    order of the bits
   % InputRNG: Choose the method for generating the random numbers used in
   %           stochastic generation of the input values. Options:
-  %             'LFSR' - Use a unique LFSR for each input
+  %             'LFSR' (default) - Use a unique LFSR for each input
   %             'SingleLFSR' - Use one longer LFSR, giving a unique n-bit
   %                            segment tp each copy of the inputs
   % ConstantSNG: Choose the method for generating stochastic versions of the
   %              the constants. Options:
-  %                'Comparator' - Compare the values to random numbers (default)
+  %                'Comparator' - Compare the values to random numbers
   %                'Majority' - A series of cascading majority gates
   %                'WBG' - Circuit defined in Gupta and Kumaresan (1988)
   %                'Mux' - A series of cascading multiplexers
   %                'HardWire' - A hardwired series of and and or gates with
-  %                             space-saving optimizations.
+  %                             space-saving optimizations. (default)
   % InputSNG: Choose the method for generating stochastic versions of the
   %           inputs. Options are the same as for ConstantSNG with the exception
-  %           of 'HardWire'.
+  %           of 'HardWire'. Default is Comparator.
+  % SCModule: Choose the type of core SC Module to generate. Options:
+  %             'ReSC' - ReSC module (default)
+  %             'STRAUSS' - STRAUSS module
+  % domain          : the domain over which to model  (Default [0, 1])
+  % granularity     : the number of data points to sample in approximating the
+  %                   the function
   addpath(genpath('.'));
   
-  min_vals = min(data);
-  max_vals = max(data);
-  data(:,1) = (data(:,1) - min_vals(1)) / (max_vals(1) - min_vals(1));
-  data(:,2) = (data(:,2) - min_vals(2)) / (max_vals(2) - min_vals(2));
+  x = [domain(1):(domain(2) - domain(1))/granularity:domain(2)];
+  y = arrayfun(func, x);
   
-  coeff = BernAppr(data, degree);
-  VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix, ...
-                       ConstantRNG, InputRNG, ConstantSNG, InputSNG);
+  VerilogSCFromData([x' y'], degree, N, m_input, m_coeff, nameSuffix,...
+                      ConstantRNG, InputRNG, ConstantSNG, InputSNG, SCModule);
 end
+

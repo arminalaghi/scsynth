@@ -22,17 +22,23 @@
 %% B. D. Brown and H. C. Card, "Stochastic neural computation. I. Computational
 %% elements," in IEEE Transactions on Computers, vol. 50, no. 9, pp. 891-905,
 %% Sep 2001. doi: 10.1109/12.954505
+%%
+%% A. Alaghi and J. P. Hayes, "STRAUSS: Spectral Transform Use in Stochastic
+%% Circuit Synthesis," in IEEE Transactions on Computer-Aided Design of
+%% Integrated Circuits and Systems, vol. 34, no. 11, pp. 1770-1783, Nov. 2015.
+%% doi: 10.1109/TCAD.2015.2432138
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
+function VerilogSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
                               ConstantRNG='SharedLFSR', InputRNG='LFSR',...
-                              ConstantSNG='Comparator', InputSNG='Comparator')
+                              ConstantSNG='HardWire', InputSNG='Comparator',...
+                              SCModule='ReSC')
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
   %Lilja for approximating the computation of any function with domain and range
   %in the unit interval as a stochastic circuit using a Bernstein polynomial
   %approximation of the function. This function generates a complete ReSC module
-  %written in Verilog, containing the following files:
+  %or related STRAUSS module written in Verilog, containing the following files:
   % ReSC_[nameSuffix].v - The core stochastic module
   % ReSC_wrapper_[nameSuffix].v - A wrapper for the module that converts inputs
   %                               inputs and outputs between binary and
@@ -64,17 +70,27 @@ function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
   %                            segment tp each copy of the inputs
   % ConstantSNG: Choose the method for generating stochastic versions of the
   %              the constants. Options:
-  %                'Comparator' - Compare the values to random numbers (default)
+  %                'Comparator' - Compare the values to random numbers
   %                'Majority' - A series of cascading majority gates
   %                'WBG' - Circuit defined in Gupta and Kumaresan (1988)
   %                'Mux' - A series of cascading multiplexers
   %                'HardWire' - A hardwired series of and and or gates with
-  %                             space-saving optimizations.
+  %                             space-saving optimizations. (default)
   % InputSNG: Choose the method for generating stochastic versions of the
   %           inputs. Options are the same as for ConstantSNG with the exception
-  %           of 'HardWire'.
+  %           of 'HardWire'. Default is Comparator.
+  % SCModule: Choose the type of core SC Module to generate. Options:
+  %             'ReSC' - ReSC module (default)
+  %             'STRAUSS' - STRAUSS module
   
-  ReSCName = sprintf('ReSC_%s', nameSuffix);
+  switch(SCModule)
+    case 'ReSC'
+      SCName = sprintf('ReSC_%s', nameSuffix);
+      SCFunc = @VerilogCoreReSCGenerator;
+    case 'STRAUSS'
+      SCName = sprintf('STRAUSS_%s', nameSuffix);
+      SCFunc = @VerilogCoreStraussGenerator;
+  end
   wrapperName = sprintf('ReSC_wrapper_%s', nameSuffix);
   testName = sprintf('ReSC_test_%s', nameSuffix);
   
@@ -104,10 +120,18 @@ function VerilogReSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
       VerilogLFSRGenerator(log2(N) * (length(coeff) - 1), true, inputRandName);
   end
   
-  VerilogCoreReSCGenerator(length(coeff) - 1, ReSCName);
+  if strcmp(ConstantSNG, 'HardWire')
+    if strcmp(ConstantRNG, 'LFSR')
+      SCFunc(length(coeff) - 1, SCName, true, false, coeff, m_coeff);
+    else
+      SCFunc(length(coeff) - 1, SCName, true, true, coeff, m_coeff);
+    end
+  else
+	  SCFunc(length(coeff) - 1, SCName, false);
+  end
   
   VerilogSCWrapperGenerator(coeff, N, m_input, m_coeff, constRandName,...
-                            inputRandName, ReSCName, wrapperName,...
+                            inputRandName, SCName, wrapperName,...
                             ConstantRNG, InputRNG, ConstantSNG, InputSNG);
   
   VerilogReSCTestGenerator(coeff, N, m_input, m_coeff, wrapperName, testName);

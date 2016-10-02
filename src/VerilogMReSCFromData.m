@@ -21,7 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogMReSCFromData (data, degrees, N, m_input, m_coeff,...
-                               nameSuffix, singleWeightLFSR=true)
+                               nameSuffix, ConstantRNG='SharedLFSR',...
+                               InputRNG='LFSR')
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
   %Lilja for approximating the computation of any function with domain and range
@@ -52,7 +53,19 @@ function VerilogMReSCFromData (data, degrees, N, m_input, m_coeff,...
   %             module
   
   %Optional Parameters:
-  % singleWeightLFSR: Use the same LFSR for every constant. (Default true)
+  % ConstantRNG: Choose the method for generating the random numbers used in
+  %              stochastic generation of the constants. Options:
+  %                'SharedLFSR' (default) - Use one LFSR for all weights
+  %                'LFSR' - Use a unique LFSR for each weight
+  %                'Counter' - Count from 0 to 2^m in order
+  %                'ReverseCounter' - Count from 0 to 2^m, but reverse the
+  %                                    order of the bits
+  % InputRNG: Choose the method for generating the random numbers used in
+  %           stochastic generation of the input values. Options:
+  %             'LFSR' - Use a unique LFSR for each input
+  %             'SingleLFSR' - Use one longer LFSR, giving a unique n-bit
+  %                            segment tp each copy of the inputs
+  
   addpath(genpath('.'));
   
   min_vals = min(data);
@@ -63,5 +76,5 @@ function VerilogMReSCFromData (data, degrees, N, m_input, m_coeff,...
   
   coeff = MultivariateBernAppr(data, degrees);
   VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input, m_coeff, ...
-                                   nameSuffix, singleWeightLFSR);
+                                   nameSuffix, ConstantRNG, InputRNG);
 end

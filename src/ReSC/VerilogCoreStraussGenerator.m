@@ -6,18 +6,18 @@
 %% this program at https://github.com/arminalaghi/scsynth
 %%
 %% References:
-%% Qian, W., Li, X., Riedel, M. D., Bazargan, K., & Lilja, D. J. (2011). An
-%% Architecture for Fault-Tolerant Computation with Stochastic Logic. IEEE
-%% Transactions on Computers IEEE Trans. Comput., 60(1), 93-105.
-%% doi:10.1109/tc.2010.202
+%% A. Alaghi and J. P. Hayes, "STRAUSS: Spectral Transform Use in Stochastic
+%% Circuit Synthesis," in IEEE Transactions on Computer-Aided Design of
+%% Integrated Circuits and Systems, vol. 34, no. 11, pp. 1770-1783, Nov. 2015.
+%% doi: 10.1109/TCAD.2015.2432138
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function VerilogCoreReSCGenerator (degree, moduleName,...
-                                   hardCodeConstants=true,...
-                                   singleConstantBitstream=true, coeff=[],...
-                                   m_coeff=0)
+function VerilogCoreStraussGenerator (degree, moduleName,...
+                                      hardCodeConstants=true,
+                                      singleConstantBitstream=true, coeff=[],...
+                                      m_coeff=0)
 
-  %Generates an ReSC module in verilog whose inputs and outputs
+  %Generates a STRAUSS in verilog whose inputs and outputs
   %remain in stochastic format
   
   %Parameters:
@@ -28,7 +28,7 @@ function VerilogCoreReSCGenerator (degree, moduleName,...
   % hardCodeConstants: if true, constant input is simply a random bitstream, and
   %                    stochastic number generation is hard coded into the
   %                    module (default=true)
-  % singleConstantBitstream: only relevant if hardCodeConstants is true, if true,
+  % singleConstantBitsream: only relevant if hardCodeConstants is true, if true,
   %                         use one random bitstream for all constants rather
   %                         than an independent one for each (default true)
   % coeff: Bernstein coefficients, required with hardCodeConstants and
@@ -122,22 +122,21 @@ function VerilogCoreReSCGenerator (degree, moduleName,...
       fprintf(fp, '\n');
     end
   end
-
-  bits = ceil(log2(degree));
-	fprintf(fp, '\twire [%d:0] sum; //sum of x values for mux\n', bits - 1); 
-	fprintf(fp, '\tassign sum = x[0]');
-  for i=1:degree - 1
-    fprintf(fp, ' + x[%d]', i);
-  end
-  fprintf(fp, ';\n\n');
+  
+	l_z = 2 ^ (degree);
+	tt = zeros(1, l_z);
+	for i = 1: l_z
+		j = sum(dec2bin(i-1)-48);
+		tt(i) = j;
+	end
   
 	fprintf(fp, '\talways @(*) begin\n');
-	fprintf(fp, '\t\tcase (sum)\n');
-  for i=0:degree
+	fprintf(fp, '\t\tcase (x)\n');
+  for i=1:length(tt)
     if hardCodeConstants
-      fprintf(fp, '\t\t\t%d''d%d: z = wire%d_1;\n', bits, i, i);
+      fprintf(fp, '\t\t\t%d''d%d: z = wire%d_1;\n', degree, i-1, tt(i));
     else
-      fprintf(fp, '\t\t\t%d''d%d: z = w[%d];\n', bits, i, i);
+      fprintf(fp, '\t\t\t%d''d%d: z = w[%d];\n', degree, i-1, tt(i));
     end
   end
   fprintf(fp, '\t\t\tdefault: z = 0;\n');

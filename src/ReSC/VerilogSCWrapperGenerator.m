@@ -22,19 +22,24 @@
 %% B. D. Brown and H. C. Card, "Stochastic neural computation. I. Computational
 %% elements," in IEEE Transactions on Computers, vol. 50, no. 9, pp. 891-905,
 %% Sep 2001. doi: 10.1109/12.954505
+%%
+%% A. Alaghi and J. P. Hayes, "STRAUSS: Spectral Transform Use in Stochastic
+%% Circuit Synthesis," in IEEE Transactions on Computer-Aided Design of
+%% Integrated Circuits and Systems, vol. 34, no. 11, pp. 1770-1783, Nov. 2015.
+%% doi: 10.1109/TCAD.2015.2432138
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,... 
                                     constRandModule, inputRandModule,...
-                                    ReSCModule, moduleName,...
+                                    SCModule, moduleName,...
                                     ConstantRNG='SharedLFSR',...
                                     InputRNG='LFSR',...
                                     ConstantSNG='Comparator',...
                                     InputSNG='Comparator')
 
-  %Generates a Verilog module that wraps an ReSC unit with conversions
-  %from binary to stochastic on the inputs and from stochastic to binary
-  %on the outputs.
+  %Generates a Verilog module that wraps an ReSC or STRAUSS unit with
+  %conversions from binary to stochastic on the inputs and from stochastic to
+  %binary on the outputs.
   
   %Parameters:
   % coeff          : a list of coefficients of the Bernstein polynomial; each
@@ -46,7 +51,7 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
   %                  stochastic number generation for weights
   % inputRandModule: name of the randomizing Verilog module to be used for
   %                  stochastic number generation for inputs
-  % ReSCModule     : name of the ReSC module to wrap
+  % SCModule       : name of the ReSC or STRAUSS module to wrap
   % moduleName     : the name of the verilog module
   
   %Optional Parameters:
@@ -110,13 +115,8 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
       fprintf(fp, '\treg [%d:0] w%d_bin = %d\''d%d;\n', m - 1, i, m,...
               decimal_coeffs(i+1));
     end
-  else
-    for i=0:degree
-		  fprintf(fp, '\twire wire%d_1;\n', i);
-	  end
-    prob_table = zeros(1, 4);
   end
-
+  
   %declare internal wires
 	fprintf(fp, '\n\twire [%d:0] x_stoch;\n', degree - 1);
 	fprintf(fp, '\twire [%d:0] w_stoch;\n', degree);
@@ -298,65 +298,24 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
           end
           fprintf(fp, ['\tassign w_stoch[%d] = randw%d[%d]? w%d_bin[%d]:mux',...
                        'w%d_%d;\n\n'], i, i, m-1, i, m-1, i, m-2);
-        case 'HardWire'
-          fprintf(fp, '\tassign w_stoch[%d] = wire%d_1;\n', i, i);
-          temp = round(coeff(i+1)*(2^m_coeff))/(2^m_coeff);
-          for j=1:m_coeff+1
-            if(temp == 1)
-              fprintf(fp, '\tassign wire%d_%d = 1;\n', i, j);
-              break;
-            elseif(temp == 0)
-              fprintf(fp, '\tassign wire%d_%d = 0;\n', i, j);
-              break;
-            else
-              if(size(find(prob_table(:, 1) == temp), 1) ~= 0) %prob exists
-                index = find(prob_table(:, 1) == temp);
-                temp2 = prob_table(index, :);
-                if(size(find(temp2(:, 2) == j), 1) ~= 0) %the same level
-                  index2 = find(temp2(:, 2) == j);
-                  temp2 = temp2(index2, :);
-                  fprintf(fp, '\tassign wire%d_%d = wire%d_%d;\n', i, j,...
-                          temp2(1, 3), temp2(1, 4));
-                  break;
-                end
-              end
-      
-              if(size(find(prob_table(:, 1) == 1 - temp), 1) ~= 0) %inverse
-                index = find(prob_table(:, 1) == 1 - temp);
-                temp2 = prob_table(index, :);
-                if(size(find(temp2(:, 2) == j), 1) ~= 0) %the same level
-                  index2 = find(temp2(:, 2) == j);
-                  temp2 = temp2(index2, :);
-                  fprintf(fp, '\tassign wire%d_%d = ~wire%d_%d;\n', i, j,...
-                          temp2(1, 3), temp2(1, 4));
-                  break;
-                end
-              end
-      
-              new_row = [temp, j, i, j];
-              prob_table = [prob_table ; new_row];
-              if(temp < 0.5)
-                fprintf(fp, '\twire wire%d_%d;\n', i, j+1);
-                fprintf(fp, '\tassign wire%d_%d = (randw%d[%d] & wire%d_%d);\n',...
-                        i, j, i, m_coeff - j, i, j+1);
-                temp = 2*temp;
-              else
-                fprintf(fp, '\twire wire%d_%d;\n', i, j+1);
-                fprintf(fp, '\tassign wire%d_%d = (randw%d[%d] | wire%d_%d);\n',...
-                        i, j, i, m_coeff - j, i, j+1);
-                temp = 2*temp - 1;
-              end
-            end
-          end
-          fprintf(fp, '\n');
       end
     end
   end
   
   %initialize the core ReSC module
-	fprintf(fp, '\t%s ReSC (\n', ReSCModule);
+	fprintf(fp, '\t%s ReSC (\n', SCModule);
 	fprintf(fp, '\t\t.x (x_stoch),\n');
-	fprintf(fp, '\t\t.w (w_stoch),\n');
+  if strcmp(ConstantSNG, 'HardWire')
+    if strcmp(ConstantRNG, 'LFSR')
+      for i=0:degree
+        fprintf(fp, '\t\t.randw%d (randw%d),\n', i, i);
+      end
+    else
+      fprintf(fp, '\t\t.randw (randw0),\n');
+    end
+  else
+	  fprintf(fp, '\t\t.w (w_stoch),\n');
+  end
 	fprintf(fp, '\t\t.z (z_stoch)\n');
 	fprintf(fp, '\t);\n\n');
 

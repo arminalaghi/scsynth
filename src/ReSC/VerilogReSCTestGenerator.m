@@ -66,12 +66,12 @@ function VerilogReSCTestGenerator (coeff, N, m_input, m_coeff, wrapModule,...
 	fprintf(fp, '\tinitial begin\n');
   fprintf(fp, '\t\tclk = 0;\n');
 	fprintf(fp, '\t\treset = 1;\n');
-	fprintf(fp, '\t\t#1 reset = 0;\n');
+	fprintf(fp, '\t\t#5 reset = 0;\n');
 	fprintf(fp, '\t\tstart = 1;\n\n');
     
   for i=0:10
     if (i==0)
-      fprintf(fp, '\t\t#2 ');
+      fprintf(fp, '\t\t#10 ');
     else
       fprintf(fp, '\t\t#%d ', N * 2 + 6);
     end
@@ -85,7 +85,7 @@ function VerilogReSCTestGenerator (coeff, N, m_input, m_coeff, wrapModule,...
     fprintf(fp, '\t\tstart = 0;\n\n');
   end
   
-	fprintf(fp, '\t\t#%d $stop;\n', 2 * N + 20);
+	fprintf(fp, '\t\t#%d $stop;\n', 10 * N + 100);
 	fprintf(fp, '\tend\n\n');
 
 	fprintf(fp, '\talways @(posedge done) begin\n');
