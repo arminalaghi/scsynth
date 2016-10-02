@@ -18,9 +18,8 @@ More details on the usage of these functions can be found in the source code.
 
 ## References
 *A. Alaghi and J. P. Hayes, "Exploiting correlation in stochastic circuit design," 2013 IEEE 31st International Conference on Computer Design (ICCD), Asheville, NC, 2013, pp. 39-46. doi: 10.1109/ICCD.2013.6657023
-* A. Alaghi and J. P. Hayes, "STRAUSS: Spectral Transform Use in Stochastic Circuit Synthesis," in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 34, no. 11, pp. 1770-1783, Nov. 2015.
-doi: 10.1109/TCAD.2015.2432138
-*B. D. Brown and H. C. Card, "Stochastic neural computation. I. Computational elements," in IEEE Transactions on Computers, vol. 50, no. 9, pp. 891-905, Sep 2001. doi: 10.1109/12.954505
-*Gupta, P. K. and Kumaresan, R. 1988. Binary multiplication with PN sequences. IEEE Trans. Acoustics Speech Signal Process. 36, 603–606.
-* Qian, W., Li, X., Riedel, M. D., Bazargan, K., & Lilja, D. J. (2011). An Architecture for Fault-Tolerant Computation with Stochastic Logic. IEEE Transactions on Computers IEEE Trans. Comput., 60(1), 93-105. doi:10.1109/tc.2010.202
-* Qian, W., & Riedel, M.D. (2010). The Synthesis of Stochastic Logic to Perform Multivariate Polynomial Arithmetic.
+* A. Alaghi and J. P. Hayes, "STRAUSS: Spectral Transform Use in Stochastic Circuit Synthesis," in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 34, no. 11, pp. 1770-1783, Nov. 2015. doi: 10.1109/TCAD.2015.2432138
+* B. D. Brown and H. C. Card, "Stochastic neural computation. I. Computational elements," IEEE Trans. Computers, 2001. doi: 10.1109/12.954505
+* P. K. Gupta and R. Kumaresan, "Binary multiplication with PN sequences," IEEE Trans. Acoustics Speech Signal Process, 1988.
+* W. Qian, X. Li, M. D. Riedel, K. Bazargan and D. J. Lilja, D. J. "An architecture for fault-tolerant computation with stochastic logic," IEEE Trans. on Computers, 2011. doi:10.1109/tc.2010.202
+* W. Qian and M. D. Riedel, "The synthesis of stochastic logic to perform multivariate polynomial arithmetic," 2010.
