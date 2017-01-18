@@ -27,6 +27,10 @@
 %% Circuit Synthesis," in IEEE Transactions on Computer-Aided Design of
 %% Integrated Circuits and Systems, vol. 34, no. 11, pp. 1770-1783, Nov. 2015.
 %% doi: 10.1109/TCAD.2015.2432138
+%%
+%% A. Alaghi and J. P. Hayes, "A spectral transform approach to stochastic
+%% circuits," 2012 IEEE 30th International Conference on Computer Design (ICCD),
+%% Montreal, QC, 2012, pp. 315-321. doi: 10.1109/ICCD.2012.6378658
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
@@ -82,7 +86,10 @@ function VerilogSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
   % SCModule: Choose the type of core SC Module to generate. Options:
   %             'ReSC' - ReSC module (default)
   %             'STRAUSS' - STRAUSS module
+  %             'AsymSTRAUSS' - STRAUSS module with asymmetric coefficients 
+  %                             optimized for space. (efficient but slow)
   
+  symmetric = true;
   switch(SCModule)
     case 'ReSC'
       SCName = sprintf('ReSC_%s', nameSuffix);
@@ -90,6 +97,10 @@ function VerilogSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
     case 'STRAUSS'
       SCName = sprintf('STRAUSS_%s', nameSuffix);
       SCFunc = @VerilogCoreStraussGenerator;
+    case 'AsymSTRAUSS'
+      SCName = sprintf('STRAUSS_%s', nameSuffix);
+      SCFunc = @VerilogCoreStraussGenerator;
+      symmetric=false;
   end
   wrapperName = sprintf('ReSC_wrapper_%s', nameSuffix);
   testName = sprintf('ReSC_test_%s', nameSuffix);
@@ -122,9 +133,9 @@ function VerilogSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
   
   if strcmp(ConstantSNG, 'HardWire')
     if strcmp(ConstantRNG, 'LFSR')
-      SCFunc(length(coeff) - 1, SCName, true, false, coeff, m_coeff);
+      SCFunc(length(coeff) - 1, SCName, true, false, coeff, m_coeff, symmetric);
     else
-      SCFunc(length(coeff) - 1, SCName, true, true, coeff, m_coeff);
+      SCFunc(length(coeff) - 1, SCName, true, true, coeff, m_coeff, symmetric);
     end
   else
 	  SCFunc(length(coeff) - 1, SCName, false);

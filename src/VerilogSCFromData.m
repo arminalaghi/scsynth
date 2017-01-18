@@ -27,6 +27,10 @@
 %% Circuit Synthesis," in IEEE Transactions on Computer-Aided Design of
 %% Integrated Circuits and Systems, vol. 34, no. 11, pp. 1770-1783, Nov. 2015.
 %% doi: 10.1109/TCAD.2015.2432138
+%%
+%% A. Alaghi and J. P. Hayes, "A spectral transform approach to stochastic
+%% circuits," 2012 IEEE 30th International Conference on Computer Design (ICCD),
+%% Montreal, QC, 2012, pp. 315-321. doi: 10.1109/ICCD.2012.6378658
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogSCFromData (data, degree, N, m_input, m_coeff, nameSuffix,...
@@ -86,6 +90,8 @@ function VerilogSCFromData (data, degree, N, m_input, m_coeff, nameSuffix,...
   % SCModule: Choose the type of core SC Module to generate. Options:
   %             'ReSC' - ReSC module (default)
   %             'STRAUSS' - STRAUSS module
+  %             'AsymSTRAUSS' - STRAUSS module with asymmetric coefficients 
+  %                             optimized for space. (efficient but slow)
   
   addpath(genpath('.'));
   

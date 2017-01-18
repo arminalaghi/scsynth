@@ -1,0 +1,142 @@
+.model octave_tempfile
+
+.inputs x1 x2 x3 x4 x5 x6 x7 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10
+
+.outputs z
+
+
+
+.names x1 ONE
+0 1
+1 1
+
+.names ONE ZERO
+1 0
+
+.names x1 x2 x3 x4 x5 x6 x7 wire1_1 wire2_1 wire3_1 wire4_1 wire5_1 wire6_1 wire7_1 wire8_1 wire9_1 wire10_1 wire11_1 wire12_1 wire13_1 wire14_1 wire15_1 wire16_1 wire17_1 wire18_1 wire19_1 wire20_1 wire21_1 wire22_1 wire23_1 wire24_1 wire25_1 wire26_1 wire27_1 wire28_1 wire29_1 wire30_1 wire31_1 wire32_1 wire33_1 wire34_1 wire35_1 wire36_1 wire37_1 wire38_1 wire39_1 wire40_1 wire41_1 wire42_1 wire43_1 wire44_1 wire45_1 wire46_1 wire47_1 wire48_1 wire49_1 wire50_1 wire51_1 wire52_1 wire53_1 wire54_1 wire55_1 wire56_1 wire57_1 wire58_1 wire59_1 wire60_1 wire61_1 wire62_1 wire63_1 wire64_1 wire65_1 wire66_1 wire67_1 wire68_1 wire69_1 wire70_1 wire71_1 wire72_1 wire73_1 wire74_1 wire75_1 wire76_1 wire77_1 wire78_1 wire79_1 wire80_1 wire81_1 wire82_1 wire83_1 wire84_1 wire85_1 wire86_1 wire87_1 wire88_1 wire89_1 wire90_1 wire91_1 wire92_1 wire93_1 wire94_1 wire95_1 wire96_1 wire97_1 wire98_1 wire99_1 wire100_1 wire101_1 wire102_1 wire103_1 wire104_1 wire105_1 wire106_1 wire107_1 wire108_1 wire109_1 wire110_1 wire111_1 wire112_1 wire113_1 wire114_1 wire115_1 wire116_1 wire117_1 wire118_1 wire119_1 wire120_1 wire121_1 wire122_1 wire123_1 wire124_1 wire125_1 wire126_1 wire127_1 wire128_1 z
+
+
+
+.names ONE wire5_1
+1 1
+
+
+
+.names ONE wire6_1
+1 1
+
+
+
+.names ONE wire7_1
+1 1
+
+
+
+.names ONE wire8_1
+1 1
+
+
+
+.names ONE wire9_1
+1 1
+
+
+
+.names r1 wire10_2 wire10_1
+00 0
+
+.names r2 wire10_3 wire10_2
+11 1
+
+.names r3 wire10_4 wire10_3
+00 0
+
+.names r4 wire10_5 wire10_4
+11 1
+
+.names r5 wire10_6 wire10_5
+11 1
+
+.names r6 wire10_7 wire10_6
+00 0
+
+.names r7 wire10_8 wire10_7
+00 0
+
+.names ZERO wire10_8
+1 1
+
+
+
+.names ZERO wire11_1
+1 1
+
+
+
+.names ONE wire12_1
+1 1
+
+
+
+.names ZERO wire13_1
+1 1
+
+
+
+.names ONE wire14_1
+1 1
+
+
+
+.names r1 wire15_2 wire15_1
+00 0
+
+.names r2 wire15_3 wire15_2
+00 0
+
+.names r3 wire15_4 wire15_3
+11 1
+
+.names r4 wire15_5 wire15_4
+11 1
+
+.names r5 wire15_6 wire15_5
+00 0
+
+.names r6 wire15_7 wire15_6
+00 0
+
+.names ZERO wire15_7
+1 1
+
+
+
+.names r1 wire16_2 wire16_1
+00 0
+
+.names r2 wire16_3 wire16_2
+00 0
+
+.names r3 wire16_4 wire16_3
+00 0
+
+.names r4 wire16_5 wire16_4
+00 0
+
+.names r5 wire16_6 wire16_5
+00 0
+
+.names r6 wire16_7 wire16_6
+00 0
+
+.names r7 wire16_8 wire16_7
+11 1
+
+.names r8 wire16_9 wire16_8
+00 0
+
+.names wire1_9 wire16_9
+0 1
+
+
+.end
