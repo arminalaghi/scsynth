@@ -17,7 +17,7 @@ scsynth consists of functions that can be run in MATLAB or Octave to generate Ve
 More details on the usage of these functions can be found in the source code.
 
 ## References
-* A. Alaghi and J. P. Hayes, "A spectral transform approach to stochastic circuits," 2012 IEEE 30th International Conference on Computer Design (ICCD), Montreal, QC, 2012, pp. 315-321. doi: 10.1109/ICCD.2012.6378658
+* A. Alaghi and J. P. Hayes,, "A spectral transform approach to stochastic circuits," 2012 IEEE 30th International Conference on Computer Design (ICCD), Montreal, QC, 2012, pp. 315-321. doi: 10.1109/ICCD.2012.6378658
 * A. Alaghi and J. P. Hayes, "Exploiting correlation in stochastic circuit design," 2013 IEEE 31st International Conference on Computer Design (ICCD), Asheville, NC, 2013, pp. 39-46. doi: 10.1109/ICCD.2013.6657023
 * A. Alaghi and J. P. Hayes, "STRAUSS: Spectral Transform Use in Stochastic Circuit Synthesis," in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 34, no. 11, pp. 1770-1783, Nov. 2015. doi: 10.1109/TCAD.2015.2432138
 * B. D. Brown and H. C. Card, "Stochastic neural computation. I. Computational elements," IEEE Trans. Computers, 2001. doi: 10.1109/12.954505
