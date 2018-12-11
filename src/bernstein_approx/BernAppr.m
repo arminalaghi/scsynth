@@ -56,8 +56,8 @@ function [coefs, obj, H, b, c] = BernAppr(vals, degree)
   % set up the constant c
   c = trapz(x, y .* y);
 
-  options = optimset('LargeScale','off');
-
+%  options = optimset('LargeScale','off');
+  options =optimset();
   lb = zeros(degree+1,1);
   ub = ones(degree+1,1);
   x0 = [];
