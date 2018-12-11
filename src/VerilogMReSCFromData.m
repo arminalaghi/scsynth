@@ -64,7 +64,7 @@ function VerilogMReSCFromData (data, degrees, N, m_input, m_coeff,...
   %           stochastic generation of the input values. Options:
   %             'LFSR' - Use a unique LFSR for each input
   %             'SingleLFSR' - Use one longer LFSR, giving a unique n-bit
-  %                            segment tp each copy of the inputs
+  %                            segment to each copy of the inputs
   
   addpath(genpath('.'));
   
