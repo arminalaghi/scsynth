@@ -58,12 +58,15 @@ function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input,...
   testName = sprintf('MReSC_test_%s', nameSuffix);
   randName = sprintf('LFSR_%d_bit_added_zero_%s', log2(N), nameSuffix);
   
+  printf('Generating core file %s\n', ReSCName);
   VerilogCoreMultivariateReSCGenerator(degrees, ReSCName);
   
+  printf('Generating wrapper file %s\n', wrapperName);
   VerilogMultivariateSCWrapperGenerator(coeff, degrees, N, m_input, m_coeff,...
                                         randName, ReSCName, wrapperName,...
                                         singleWeightLFSR);
-  
+                                        
+  printf('Generating test file %s\n', testName);
   VerilogMultivariateReSCTestGenerator(coeff, degrees, N, m_input, m_coeff,...
                                        wrapperName, testName);
  
@@ -112,6 +115,7 @@ function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input,...
 		otherwise
 			taps = [3, 2];
 	end
-  
+    
+  printf('Generating LFSR file %s\n', randName)
   VerilogLFSRGenerator(log2(N), taps, true, randName);
 end
