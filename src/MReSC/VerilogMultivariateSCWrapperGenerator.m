@@ -106,7 +106,7 @@ function VerilogMultivariateSCWrapperGenerator (coeff, degrees, N, m_input,
 	  	fprintf(fp, '\t\t.enable (running),\n');
 	  	fprintf(fp, '\t\t.restart (init),\n');
 	  	fprintf(fp, '\t\t.clk (clk),\n');
-	  	fprintf(fp, '\t\t.reset (reset)\n');0
+	  	fprintf(fp, '\t\t.reset (reset)\n');
 	  	fprintf(fp, '\t);\n');
       if (m_input < m)
         fprintf(fp, ['\tassign x_%d_stoch[%d] = randx_%d_%d < x_%d_bin_shif',...
@@ -117,7 +117,7 @@ function VerilogMultivariateSCWrapperGenerator (coeff, degrees, N, m_input,
       end
     end
   end
-  
+
   %binary to stochastic conversion for the coefficients
   if singleWeightLFSR
     fprintf(fp, '\twire [%d:0] randw;\n', m - 1);
