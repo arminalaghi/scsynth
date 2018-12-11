@@ -136,7 +136,7 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
 		    fprintf(fp, '\t\t.enable (running),\n');
         fprintf(fp, '\t\t.restart (init),\n');
 	  	  fprintf(fp, '\t\t.clk (clk),\n');
-	    	fprintf(fp, '\t\t.reset (reset)\n');0
+	    	fprintf(fp, '\t\t.reset (reset)\n');
 	    	fprintf(fp, '\t);\n\n');
       end
     case 'SingleLFSR'
