@@ -73,7 +73,7 @@ function VerilogMultivariateReSCTestGenerator (coeff, degrees, N, m_input,...
 	fprintf(fp, '\tend\n\n');
 
 	fprintf(fp, '\tinitial begin\n');
-  fprintf(fp, '\t\tclk = 0;\n');
+    fprintf(fp, '\t\tclk = 0;\n');
 	fprintf(fp, '\t\treset = 1;\n');
 	fprintf(fp, '\t\t#1 reset = 0;\n');
 	fprintf(fp, '\t\tstart = 1;\n\n');
