@@ -117,5 +117,5 @@ function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input,...
 	end
     
   printf('Generating LFSR file %s\n', randName)
-  VerilogLFSRGenerator(log2(N), taps, true, randName);
+  VerilogLFSRGenerator(log2(N), true, randName, taps);
 end
