@@ -117,8 +117,10 @@ function [coefs, obj, H, b, c] = MultivariateBernAppr(vals, degrees)
     for i=1:length(degrees)
         c = trapz(ranges{i}, c, i);
     end
+    
 % Uncomment line below for MATLAB
 % options = optimset('LargeScale','off');
+
 % Comment line below for MATLAB
     options = optimset();
     
