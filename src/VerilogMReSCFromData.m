@@ -75,6 +75,8 @@ function VerilogMReSCFromData (data, degrees, N, m_input, m_coeff,...
   end
   
   coeff = MultivariateBernAppr(data, degrees);
+%  VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input, m_coeff, ...
+%                                   nameSuffix, ConstantRNG, InputRNG);
   VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input, m_coeff, ...
-                                   nameSuffix, ConstantRNG, InputRNG);
+                                   nameSuffix, singleWeightLFSR=true);
 end
