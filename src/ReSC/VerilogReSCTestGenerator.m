@@ -79,6 +79,8 @@ function VerilogReSCTestGenerator (coeff, N, m_input, m_coeff, wrapModule,...
     y = sum(coeff' .* arrayfun(@nchoosek, degree, 0:degree) .*...
             x .^ (0:degree) .* (1 - x) .^ (degree - (0:degree)));
     x_quantized = round(x * 2 ^ m_input);
+    % Fix values which assume exactly 2^m_input
+    x_quantized(x_quantized==2^m_input)= (2^m_input)-1;
     y_quantized = round(y * N);
     fprintf(fp, 'x_bin = %d''d%d;\n', m_input, x_quantized);
     fprintf(fp, '\t\texpected_z = %d''d%d;\n', m, y_quantized);

@@ -87,6 +87,8 @@ function VerilogMultivariateReSCTestGenerator (coeff, degrees, N, m_input,...
     x = rand(1, length(degrees));
     y = ComputeMultivariateBernstein(coeff, degrees, 1, x, 1);
     x_quantized = round(x * 2 ^ m_input);
+    % Fix values which assume exactly 2^m_input
+    x_quantized(x_quantized==2^m_input)= (2^m_input)-1;
     y_quantized = round(y * N);
     for j=1:length(degrees)
       fprintf(fp, '\t\tx_%d_bin = %d''d%d;\n', j, m_input, x_quantized(j));
