@@ -82,6 +82,9 @@ function VerilogReSCTestGenerator (coeff, N, m_input, m_coeff, wrapModule,...
     % Fix values which assume exactly 2^m_input
     x_quantized(x_quantized==2^m_input)= (2^m_input)-1;
     y_quantized = round(y * N);
+    % Fix values which assume exactly N
+    y_quantized(y_quantized==N)= N-1;
+    
     fprintf(fp, 'x_bin = %d''d%d;\n', m_input, x_quantized);
     fprintf(fp, '\t\texpected_z = %d''d%d;\n', m, y_quantized);
     fprintf(fp, '\t\tstart = 0;\n\n');

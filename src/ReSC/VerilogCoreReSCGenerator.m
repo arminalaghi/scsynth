@@ -48,11 +48,11 @@ function VerilogCoreReSCGenerator (degree, moduleName,...
 	fprintf(fp, '\tinput [%d:0] x, //independent copies of x\n', degree - 1);
   if hardCodeConstants
     if singleConstantBitstream
-      fprintf(fp, '\tinput [%d:0] randw, //for constant generation\n', m_coeff);
+      fprintf(fp, '\tinput [%d:0] randw, //for constant generation\n', m_coeff-1);
     else
       for i=0:degree
         fprintf(fp, '\tinput [%d:0] randw%d, //for constant generation\n', i,...
-                m_coeff);
+                m_coeff-1);
       end
     end
   else

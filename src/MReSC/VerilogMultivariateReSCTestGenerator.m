@@ -90,6 +90,9 @@ function VerilogMultivariateReSCTestGenerator (coeff, degrees, N, m_input,...
     % Fix values which assume exactly 2^m_input
     x_quantized(x_quantized==2^m_input)= (2^m_input)-1;
     y_quantized = round(y * N);
+    % Fix values which assume exactly N
+    y_quantized(y_quantized==N)= N-1;
+    
     for j=1:length(degrees)
       fprintf(fp, '\t\tx_%d_bin = %d''d%d;\n', j, m_input, x_quantized(j));
     end
