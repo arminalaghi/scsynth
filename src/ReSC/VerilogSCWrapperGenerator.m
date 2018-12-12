@@ -81,6 +81,8 @@ function VerilogSCWrapperGenerator (coeff, N, m_input, m_coeff,...
   
   m = log2(N);
   decimal_coeffs = round(coeff * 2^m_coeff) / (2^m_coeff) * N;
+  % Fix values which assume exactly 2^m_coeff
+  decimal_coeffs(decimal_coeffs==2^m_coeff)= (2^m_coeff)-1;
   degree = length(coeff) - 1;
   
 	fileName = sprintf('%s.v', moduleName);
