@@ -26,6 +26,15 @@ More details on the usage of these functions can be found in the source code.
 ## Note on Multivariate SC Synthesis
 * Code needs to be reviewed to take in consideration changes in single variable synthesis functions
 
+## Required/Recommended versions
+* Octave 4.4.1 with 64-bit enabled
+    * Packages
+        * io (2.4.12)
+        * optim  (1.5.3)
+        * parallel (3.1.3)
+        * statistics (1.4.0)
+        * struct (1.0.15)
+
 ## References
 * A. Alaghi and J. P. Hayes,, "A spectral transform approach to stochastic circuits," 2012 IEEE 30th International Conference on Computer Design (ICCD), Montreal, QC, 2012, pp. 315-321. doi: 10.1109/ICCD.2012.6378658
 * A. Alaghi and J. P. Hayes, "Exploiting correlation in stochastic circuit design," 2013 IEEE 31st International Conference on Computer Design (ICCD), Asheville, NC, 2013, pp. 39-46. doi: 10.1109/ICCD.2013.6657023

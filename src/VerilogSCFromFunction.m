@@ -95,10 +95,11 @@ function VerilogSCFromFunction (func, degree, N, m_input, m_coeff,...
   % domain          : the domain over which to model  (Default [0, 1])
   % granularity     : the number of data points to sample in approximating the
   %                   the function (default 100)
+  pkg load parallel
   addpath(genpath('.'));
   
   x = [domain(1):(domain(2) - domain(1))/granularity:domain(2)];
-  y = arrayfun(func, x);
+  y = pararrayfun(nproc,func, x);
   
   VerilogSCFromData([x' y'], degree, N, m_input, m_coeff, nameSuffix,...
                       ConstantRNG, InputRNG, ConstantSNG, InputSNG, SCModule);
