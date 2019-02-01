@@ -60,6 +60,7 @@ function VerilogMReSCFromFunction (func, degrees, N, m_input, m_coeff,...
   %                   approximating the function. If only one value is given, it
   %                   will be used for every axis. (Default 100)
   addpath(genpath('.'));
+  pkg load parallel
   
   if size(domains) == [1, 2]
     domain = domains;
@@ -80,19 +81,17 @@ function VerilogMReSCFromFunction (func, degrees, N, m_input, m_coeff,...
     points{i} = [domains(i, 1):(domains(i, 2) - domains(i, 1))/...
                  granularities(i):domains(i, 2)];
   end
-  [grids{1:length(degrees)}] = ndgrid(points{:});
   
+  [grids{1:length(degrees)}] = ndgrid(points{:});
   data = [];
   for i=1:length(degrees)
     data = [data, grids{i}(:)];
   end
+
+   y = pararrayfun(nproc,func,num2cell(data,1){:},"Vectorized", true,"ChunksPerProc",1);
   
-  y = [];
-  for i=1:length(data)
-    y = [y; func(num2cell(data(i,:)){:})];
-  end
   data = [data, y];
-  
+
   VerilogMReSCFromData(data, degrees, N, m_input, m_coeff, nameSuffix,...
                        ConstantRNG='SharedLFSR',InputRNG='LFSR');
 end
