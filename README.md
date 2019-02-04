@@ -31,7 +31,7 @@ More details on the usage of these functions can be found in the source code.
     * Packages
         * io (2.4.12)
         * optim  (1.5.3)
-        * parallel (3.1.3)
+        * parallel (3.1.3) [optional, minimal usage at the moment]
         * statistics (1.4.0)
         * struct (1.0.15)
 

@@ -22,7 +22,8 @@
 
 function VerilogMReSCFromFunction (func, degrees, N, m_input, m_coeff,...
                                    nameSuffix, singleWeightLFSR=true,...
-                                   domains=[0, 1], granularities=100)
+                                   domains=[0, 1], granularities=100,...
+                                   useParallel=false)
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
   %Lilja for approximating the computation of any function with domain and range
@@ -59,9 +60,15 @@ function VerilogMReSCFromFunction (func, degrees, N, m_input, m_coeff,...
   % granularities   : The number of data points to sample on each axis in
   %                   approximating the function. If only one value is given, it
   %                   will be used for every axis. (Default 100)
-  addpath(genpath('.'));
-  pkg load parallel
+  % useParallel     : Loads Octave's "parallel" library to speed up on multicore 
+  %                   CPUs. Speedup is minimal and only used in this phase.
+  %                   Options: true/false (default false)
+  if(useParallel)
+    pkg load parallel
+  end
   
+  addpath(genpath('.'));
+
   if size(domains) == [1, 2]
     domain = domains;
     for i=2:length(degrees)
@@ -87,8 +94,16 @@ function VerilogMReSCFromFunction (func, degrees, N, m_input, m_coeff,...
   for i=1:length(degrees)
     data = [data, grids{i}(:)];
   end
-
-   y = pararrayfun(nproc,func,num2cell(data,1){:},"Vectorized", true,"ChunksPerProc",1);
+  
+  y = [];
+  if(useParallel)
+    y = pararrayfun(nproc,func,num2cell(data,1){:},...
+                    "Vectorized", true,"ChunksPerProc",1);
+  else
+    for i=1:length(data)
+      y = [y; func(num2cell(data(i,:)){:})];
+    end
+  end
   
   data = [data, y];
 
