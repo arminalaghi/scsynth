@@ -15,7 +15,8 @@
 %% Qian, W., & Riedel, M.D.. (2010). The Synthesis of Stochastic Logic to
 %% Perform Multivariate Polynomial Arithmetic.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [coefs, obj, H, b, c] = MultivariateBernAppr(vals, degrees)
+function [coefs, obj, H, b, c] = MultivariateBernAppr(vals, degrees,...
+                                                      useParallel=false)
     %This function finds the closet bivariate Bernstein polynomial approximation 
     %to the given function funchandle f(x,y). The bivariate Bernstein polynomial 
     %has the x degree as n and y degree as m.
@@ -38,6 +39,12 @@ function [coefs, obj, H, b, c] = MultivariateBernAppr(vals, degrees)
     % vals    : n+1-column vector representing inputs and outputs of the function
     %                 being approximated
     % degrees: the degrees of the Bernstein polynomial to generate
+    % useParallel     : Loads Octave's "parallel" library to speed up on multicore 
+    %                   CPUs. Speedup is minimal and only used in this phase.
+    %                   Options: true/false (default false)
+    if(useParallel)
+      pkg load parallel
+    end
     pkg load optim;
     tol = 1.e-8;
     vals = sortrows(vals);
@@ -101,8 +108,15 @@ function [coefs, obj, H, b, c] = MultivariateBernAppr(vals, degrees)
         end
         
         b_data = gridded_vals;
+
         for i=1:length(degrees)
-            b_data .*= arrayfun(@BernBasis, grids{i}, indices(i), degrees(i));
+            if(useParallel)
+                b_data .*= pararrayfun(nproc,@BernBasis,...
+                                       grids{i}, indices(i), degrees(i),...
+                                       "Vectorized",false,"ChunksPerProc",1);
+            else
+                b_data .*= arrayfun(@BernBasis, grids{i}, indices(i), degrees(i));
+            end
         end
         
         for i=1:length(degrees)

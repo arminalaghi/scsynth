@@ -108,5 +108,5 @@ function VerilogMReSCFromFunction (func, degrees, N, m_input, m_coeff,...
   data = [data, y];
 
   VerilogMReSCFromData(data, degrees, N, m_input, m_coeff, nameSuffix,...
-                       ConstantRNG='SharedLFSR',InputRNG='LFSR');
+                       ConstantRNG='SharedLFSR',InputRNG='LFSR',useParallel);
 end
