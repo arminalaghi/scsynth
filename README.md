@@ -1,20 +1,39 @@
 # scsynth
 scsynth is a synthesis tool for stochastic computing circuits developed by N. Eamon Gaffney and Armin Alaghi at the Univeristy of Washington. Currently, it can create Verilog files describing reconfigurable architectures based on stochastic logic, or ReSCs (Qian et al., 2011), as well as similar STRAUSS architectures (Alaghi et al., 2015) but its functionality is constantly expanding.
 
+Code forked and reviewed by Danilo Cavalcanti at the Federal University of Paraíba.
+
 ## Stochastic Computing
 Stochastic computing is a computing technique involving representing numbers as single streams of bits in sequence rather than groups of bits probabilistically in parallel as is typically done in modern computing architectures. Stochastic circuits tend to run slower than their typical digital counterparts, but they also tend to be smaller (and thus lower-energy) and can be more error tolerant, giving them a number of potential applications, including neural networks and image processing.
 
 More information can be found at https://en.wikipedia.org/wiki/Stochastic_computing.
 
 ## Usage
-scsynth consists of functions that can be run in MATLAB or Octave to generate Verilog modules. Currently, the following user-facing functions exist:
-* `VerilogLFSRGenerator(dataLen, taps, addZero, moduleName)` which generates a linear feedback shift register, a module for pseudorandom number generation
+scsynth consists of functions that can be run in Octave or MATLAB to generate Verilog modules. Currently, the following user-facing functions exist:
+* `VerilogLFSRGenerator(dataLen, addZero, moduleName, taps=0)` which generates a linear feedback shift register, a module for pseudorandom number generation
 * `VerilogSCFromData(data, degree, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true, ConstantRNG='SharedLFSR', InputRNG='LFSR', ConstantSNG='HardWire', InputSNG='Comparator', SCModule='ReSC')` which, given datapoints from a function and the desired degree of the polynomial used to model the function, generates a full ReSC or STRAUSS unit, including conversion to and from binary equivalents (and pseudorandom number generators used therein) as well as a testbench for the module
 * `VerilogSCFromFunction(func, degree, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true, ConstantRNG='SharedLFSR', InputRNG='LFSR', ConstantSNG='HardWire', InputSNG='Comparator', SCModule='ReSC', domain=[0,1], granularity=100)` which works like VerilogSCFromData, but takes a function itself rather than data representing that function 
-* `VerilogMReSCFromData(data, degrees, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true)` which functions much like the normal ReSC generator but allows for functions on multiple variables (note: computational complexity scales very quickly as you add variables)
-* `VerilogMReSCFromData(func, degrees, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true, domains=[0,1], granularities=100)` which generates a multivariate ReSC from a function rather than data
+* `VerilogMReSCFromData(data, degrees, N, m_input, m_coeff, nameSuffix, ConstantRNG='SharedLFSR', InputRNG='LFSR')` which functions much like the normal ReSC generator but allows for functions on multiple variables (note: computational complexity scales very quickly as you add variables)
+* `VerilogMReSCFromFunction(func, degrees, N, m_input, m_coeff, nameSuffix, singleWeightLFSR=true, domains=[0,1], granularities=100)` which generates a multivariate ReSC from a function rather than data
 
 More details on the usage of these functions can be found in the source code.
+
+## Note on MATLAB usage
+* Since there are a few differences in *optimset* two lines have to be changed
+* Comment out (%) line 63 of BernAppr.m and uncomment line 60 (erase %)
+* Comment out (%) line 124 of MultivariateBernAppr.m and uncomment line 121 (erase %)
+
+## Note on Multivariate SC Synthesis
+* Code needs to be reviewed to take in consideration changes in single variable synthesis functions
+
+## Required/Recommended versions
+* Octave 4.4.1 with 64-bit enabled
+    * Packages
+        * io (2.4.12)
+        * optim  (1.5.3)
+        * parallel (3.1.3) [optional, minimal usage at the moment]
+        * statistics (1.4.0)
+        * struct (1.0.15)
 
 ## References
 * A. Alaghi and J. P. Hayes,, "A spectral transform approach to stochastic circuits," 2012 IEEE 30th International Conference on Computer Design (ICCD), Montreal, QC, 2012, pp. 315-321. doi: 10.1109/ICCD.2012.6378658

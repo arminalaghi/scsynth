@@ -37,7 +37,8 @@ function VerilogSCFromFunction (func, degree, N, m_input, m_coeff,...
                                   nameSuffix, ConstantRNG='SharedLFSR',...
                                   InputRNG='LFSR', ConstantSNG='HardWire',...
                                   InputSNG='Comparator', SCModule='ReSC',...
-                                  domain = [0, 1], granularity=100);
+                                  domain = [0, 1], granularity=100,...
+                                  useParallel=false);
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
   %Lilja for approximating the computation of any function with domain and range
@@ -95,10 +96,21 @@ function VerilogSCFromFunction (func, degree, N, m_input, m_coeff,...
   % domain          : the domain over which to model  (Default [0, 1])
   % granularity     : the number of data points to sample in approximating the
   %                   the function (default 100)
+  % useParallel     : Loads Octave's "parallel" library to speed up on multicore 
+  %                   CPUs. Speedup is minimal and only used in this phase.
+  %                   Options: true/false (default false)
+  if(useParallel)
+    pkg load parallel
+  end
   addpath(genpath('.'));
   
   x = [domain(1):(domain(2) - domain(1))/granularity:domain(2)];
-  y = arrayfun(func, x);
+  if(useParallel)
+    y = pararrayfun(nproc,func, x);
+  else
+     y = arrayfun(func, x);
+  end
+  
   
   VerilogSCFromData([x' y'], degree, N, m_input, m_coeff, nameSuffix,...
                       ConstantRNG, InputRNG, ConstantSNG, InputSNG, SCModule);
