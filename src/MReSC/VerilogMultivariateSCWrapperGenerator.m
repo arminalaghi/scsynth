@@ -103,7 +103,7 @@ function VerilogMultivariateSCWrapperGenerator (coeff, degrees, N, m_input,
     for j=0:degrees(i) - 1
       fprintf(fp, '\twire [%d:0] randx_%d_%d;\n', m - 1, i, j);
       fprintf(fp, '\t%s rand_gen_x_%d_%d (\n', randModule, i, j);
-		  fprintf(fp, '\t\t.seed (%d''d%d),\n', m, round(N*j/(degrees(i)*2+1)));
+		  fprintf(fp, '\t\t.seed (%d''d%d),\n', m, round(N*(0.5*(i+j)*(i+j+1)+j)/(degrees(i)*2+1)));
 	  	fprintf(fp, '\t\t.data (randx_%d_%d),\n', i, j);
 	  	fprintf(fp, '\t\t.enable (running),\n');
 	  	fprintf(fp, '\t\t.restart (init),\n');
