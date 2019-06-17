@@ -99,11 +99,22 @@ function VerilogMultivariateSCWrapperGenerator (coeff, degrees, N, m_input,
 
   %binary to stochastic conversion for the x values
   fprintf(fp, '\t//RNGs for binary->stochastic conversion\n'); 
+  %Pre-calculate seeds using Cantor Pairing Function
+  %https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+  for i=1:length(degrees)
+    for j=0:degrees(i) - 1
+      cantorSeeds(i,j+1) =  (0.5 * (i+j) * (i+j+1) + j);
+    end
+  end
+  rmin = min(min(cantorSeeds));
+  rmax = max(max(cantorSeeds));
+  cantorSeeds = (cantorSeeds - rmin)*(N-2)/(rmax-rmin);
+  cantorSeeds = round(cantorSeeds);
   for i=1:length(degrees)
     for j=0:degrees(i) - 1
       fprintf(fp, '\twire [%d:0] randx_%d_%d;\n', m - 1, i, j);
       fprintf(fp, '\t%s rand_gen_x_%d_%d (\n', randModule, i, j);
-		  fprintf(fp, '\t\t.seed (%d''d%d),\n', m, round(N*(0.5*(i+j)*(i+j+1)+j)/(degrees(i)*2+1)));
+		  fprintf(fp, '\t\t.seed (%d''d%d),\n', m, cantorSeeds(i,j+1));
 	  	fprintf(fp, '\t\t.data (randx_%d_%d),\n', i, j);
 	  	fprintf(fp, '\t\t.enable (running),\n');
 	  	fprintf(fp, '\t\t.restart (init),\n');
