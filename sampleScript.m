@@ -58,20 +58,20 @@ VerilogSCFromFunction(func, degree, N, m_input, m_coeff, modSuffix, ...
    SCModule, domain, granularity,useParallel)
 
 %% MReSC example
-degrees =  [2,2,1]
+degrees =  [1,1,1]
 det_bits = 8;
 m_input =  det_bits
 m_coeff =  det_bits
 N =  2^det_bits
 domains = [0, 1]
 granularities = [5,10,4]
-nameSuffix='SampleMReSC'
+namePrefix='SampleMReSC'
 singleWeightLFSR=true
 useParallel=true
 
 %% MReSC from function
 func = @(z1,z2,z3) (abs(z1+2*z2+z3)+abs((z3+2)-(z1)))/3.0;
-VerilogMReSCFromFunction(func, degrees, N, m_input, m_coeff, nameSuffix,...
+VerilogMReSCFromFunction(func, degrees, N, m_input, m_coeff, namePrefix,...
                     singleWeightLFSR, domains, granularities,useParallel);
 
  

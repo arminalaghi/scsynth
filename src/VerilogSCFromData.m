@@ -33,7 +33,7 @@
 %% Montreal, QC, 2012, pp. 315-321. doi: 10.1109/ICCD.2012.6378658
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function VerilogSCFromData (data, degree, N, m_input, m_coeff, nameSuffix,...
+function VerilogSCFromData (data, degree, N, m_input, m_coeff, namePrefix,...
                               ConstantRNG='SharedLFSR', InputRNG='LFSR',...
                               ConstantSNG='HardWire', InputSNG='Comparator',...
                               SCModule='ReSC')
@@ -44,12 +44,12 @@ function VerilogSCFromData (data, degree, N, m_input, m_coeff, nameSuffix,...
   %approximation of the function. This function, given data representing a
   %function, generates a complete ReSC module or related STRAUSS module written
   %in Verilog, containing the following files:
-  % ReSC_[nameSuffix].v - The core stochastic module
-  % ReSC_wrapper_[nameSuffix].v - A wrapper for the module that converts inputs
+  % [namePrefix]_ReSC.v - The core stochastic module
+  % [namePrefix]_ReSC_wrapper.v - A wrapper for the module that converts inputs
   %                               inputs and outputs between binary and
   %                               stochastic representations.
-  % ReSC_test_[nameSuffix].v - A testbench for the system.
-  % LFSR_[log(N)]_bit_added_zero_[nameSuffix].v - The RNG for generating
+  % [namePrefix]_ReSC_test.v - A testbench for the system.
+  % [namePrefix]_LFSR_[log(N)]_bit_added_zero.v - The RNG for generating
   %                                               stochastic numbers.
   
   %Parameters:
@@ -60,7 +60,7 @@ function VerilogSCFromData (data, degree, N, m_input, m_coeff, nameSuffix,...
   % N         : the length of the stochastic bitstreams, must be a power of 2
   % m_input   : the length in bits of the input, at most log2(N)
   % m_coeff   : the length in bits of the coefficients, at most log2(N)
-  % nameSuffix: a distinguishing suffix to append to the name of each Verilog
+  % namePrefix: a distinguishing prefix to append to the name of each Verilog
   %             module
   
   %Optional Parameters:
@@ -101,6 +101,6 @@ function VerilogSCFromData (data, degree, N, m_input, m_coeff, nameSuffix,...
   data(:,2) = (data(:,2) - min_vals(2)) / (max_vals(2) - min_vals(2));
   
   coeff = BernAppr(data, degree);
-  VerilogSCGenerator(coeff, N, m_input, m_coeff, nameSuffix, ...
+  VerilogSCGenerator(coeff, N, m_input, m_coeff, namePrefix, ...
                        ConstantRNG, InputRNG, ConstantSNG, InputSNG, SCModule);
 end
