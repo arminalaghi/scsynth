@@ -33,7 +33,7 @@
 %% Montreal, QC, 2012, pp. 315-321. doi: 10.1109/ICCD.2012.6378658
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function VerilogSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
+function VerilogSCGenerator(coeff, N, m_input, m_coeff, namePrefix,...
                               ConstantRNG='SharedLFSR', InputRNG='LFSR',...
                               ConstantSNG='HardWire', InputSNG='Comparator',...
                               SCModule='ReSC')
@@ -43,12 +43,12 @@ function VerilogSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
   %in the unit interval as a stochastic circuit using a Bernstein polynomial
   %approximation of the function. This function generates a complete ReSC module
   %or related STRAUSS module written in Verilog, containing the following files:
-  % ReSC_[nameSuffix].v - The core stochastic module
-  % ReSC_wrapper_[nameSuffix].v - A wrapper for the module that converts inputs
+  % [namePrefix]_ReSC.v - The core stochastic module
+  % [namePrefix]_ReSC_wrapper.v - A wrapper for the module that converts inputs
   %                               inputs and outputs between binary and
   %                               stochastic representations.
-  % ReSC_test_[nameSuffix].v - A testbench for the system.
-  % [RNG name]_[nameSuffix].v - The RNG for generating stochastic numbers.
+  % [namePrefix]_ReSC_test.v - A testbench for the system.
+  % [namePrefix]_[RNG name].v - The RNG for generating stochastic numbers.
   
   %Parameters:
   % coeff     : a list of coefficients of the Bernstein polynomial; each
@@ -56,7 +56,7 @@ function VerilogSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
   % N         : the length of the stochastic bitstreams, must be a power of 2
   % m_input   : the length in bits of the input, at most log2(N)
   % m_coeff   : the length in bits of the coefficients, at most log2(N)
-  % nameSuffix: a distinguishing suffix to append to the name of each Verilog
+  % namePrefix: a distinguishing prefix to append to the name of each Verilog
   %             module
   
   %Optional Parameters:
@@ -92,42 +92,47 @@ function VerilogSCGenerator(coeff, N, m_input, m_coeff, nameSuffix,...
   symmetric = true;
   switch(SCModule)
     case 'ReSC'
-      SCName = sprintf('ReSC_%s', nameSuffix);
+      SCName = sprintf('%s_ReSC', namePrefix);
       SCFunc = @VerilogCoreReSCGenerator;
+      wrapperName = sprintf('%s_ReSC_wrapper', namePrefix);
+      testName = sprintf('%s_ReSC_test', namePrefix);
     case 'STRAUSS'
-      SCName = sprintf('STRAUSS_%s', nameSuffix);
+      SCName = sprintf('%s_STRAUSS', namePrefix);
       SCFunc = @VerilogCoreStraussGenerator;
+      wrapperName = sprintf('%s_STRAUSS_wrapper', namePrefix);
+      testName = sprintf('%s_STRAUSS_test', namePrefix);
     case 'AsymSTRAUSS'
-      SCName = sprintf('STRAUSS_%s', nameSuffix);
+      SCName = sprintf('%s_AsymSTRAUSS', namePrefix);
       SCFunc = @VerilogCoreStraussGenerator;
+      wrapperName = sprintf('%s_AsymSTRAUSS_wrapper', namePrefix);
+      testName = sprintf('%s_AsymSTRAUSS_test', namePrefix);
       symmetric=false;
   end
-  wrapperName = sprintf('ReSC_wrapper_%s', nameSuffix);
-  testName = sprintf('ReSC_test_%s', nameSuffix);
+  
   
   LFSR = false;
   switch(ConstantRNG)
     case {'SharedLFSR', 'LFSR'}
-      constRandName = sprintf('LFSR_%d_bit_added_zero_%s', log2(N), nameSuffix);
+      constRandName = sprintf('%s_LFSR_%d_bit_added_zero', namePrefix, log2(N) );
       VerilogLFSRGenerator(log2(N), true, constRandName);
       LFSR = true;
     case 'Counter'
-      constRandName = sprintf('counter_%d_bit_%s', log2(N), nameSuffix);
+      constRandName = sprintf('%s_counter_%d_bit', namePrefix, log2(N));
       VerilogCounterGenerator(log2(N), false, constRandName);
     case 'ReverseCounter'
-      constRandName = sprintf('reversed_counter_%d_bit_%s', log2(N), nameSuffix);
+      constRandName = sprintf('%s_reversed_counter_%d_bit', namePrefix, log2(N));
       VerilogCounterGenerator(log2(N), true, constRandName);
   end
   
   switch(InputRNG)
     case 'LFSR'
-      inputRandName = sprintf('LFSR_%d_bit_added_zero_%s', log2(N), nameSuffix);
+      inputRandName = sprintf('%s_LFSR_%d_bit_added_zero', namePrefix, log2(N));
       if !LFSR
         VerilogLFSRGenerator(log2(N), true, constRandName);
       end
     case 'SingleLFSR'
-      inputRandName = sprintf('LFSR_%d_bit_added_zero_%s',...
-                              log2(N) * (length(coeff) - 1), nameSuffix);
+      inputRandName = sprintf('%s_LFSR_%d_bit_added_zero',...
+                              namePrefix, log2(N) * (length(coeff) - 1));
       VerilogLFSRGenerator(log2(N) * (length(coeff) - 1), true, inputRandName);
   end
   

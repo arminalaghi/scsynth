@@ -34,7 +34,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogSCFromFunction (func, degree, N, m_input, m_coeff,...
-                                  nameSuffix, ConstantRNG='SharedLFSR',...
+                                  namePrefix, ConstantRNG='SharedLFSR',...
                                   InputRNG='LFSR', ConstantSNG='HardWire',...
                                   InputSNG='Comparator', SCModule='ReSC',...
                                   domain = [0, 1], granularity=100,...
@@ -46,12 +46,12 @@ function VerilogSCFromFunction (func, degree, N, m_input, m_coeff,...
   %approximation of the function. This function, given a function handle,
   %generates a complete ReSC module or related STRAUSS module written in
   %Verilog, containing the following files:
-  % ReSC_[nameSuffix].v - The core stochastic module
-  % ReSC_wrapper_[nameSuffix].v - A wrapper for the module that converts inputs
+  % [namePrefix]_ReSC.v - The core stochastic module
+  % [namePrefix]_ReSC_wrapper.v - A wrapper for the module that converts inputs
   %                               inputs and outputs between binary and
   %                               stochastic representations.
-  % ReSC_test_[nameSuffix].v - A testbench for the system.
-  % LFSR_[log(N)]_bit_added_zero_[nameSuffix].v - The RNG for generating
+  % [namePrefix]_ReSC_test.v - A testbench for the system.
+  % [namePrefix]_LFSR_[log(N)]_bit_added_zero.v - The RNG for generating
   %                                               stochastic numbers.
   
   %Parameters:
@@ -61,7 +61,7 @@ function VerilogSCFromFunction (func, degree, N, m_input, m_coeff,...
   % N         : the length of the stochastic bitstreams, must be a power of 2
   % m_input   : the length in bits of the input, at most log2(N)
   % m_coeff   : the length in bits of the coefficients, at most log2(N)
-  % nameSuffix: a distinguishing suffix to append to the name of each Verilog
+  % namePrefix: a distinguishing prefix to append to the name of each Verilog
   %             module
   
   %Optional Parameters:
@@ -112,7 +112,7 @@ function VerilogSCFromFunction (func, degree, N, m_input, m_coeff,...
   end
   
   
-  VerilogSCFromData([x' y'], degree, N, m_input, m_coeff, nameSuffix,...
+  VerilogSCFromData([x' y'], degree, N, m_input, m_coeff, namePrefix,...
                       ConstantRNG, InputRNG, ConstantSNG, InputSNG, SCModule);
 end
 

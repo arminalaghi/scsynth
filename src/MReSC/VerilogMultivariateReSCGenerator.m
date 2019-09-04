@@ -21,7 +21,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input,...
-                                          m_coeff, nameSuffix,...
+                                          m_coeff, namePrefix,...
                                           singleWeightLFSR=true)
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
   %developed by Weikang Qian, Xin Li, Marc D. Riedel, Kia Bazargan, and David J.
@@ -31,12 +31,12 @@ function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input,...
   %functions of several variables by using the product of the individual
   %polynomials on those variables. This function generates a complete
   %multivariate ReSC module written in Verilog, containing the following files:
-  % MReSC_[nameSuffix].v - The core stochastic module
-  % MReSC_wrapper_[nameSuffix].v - A wrapper for the module that converts inputs
+  % [namePrefix]_MReSC.v - The core stochastic module
+  % [namePrefix]_MReSC_wrapper.v - A wrapper for the module that converts inputs
   %                                inputs and outputs between binary and
   %                                stochastic representations.
-  % MReSC_test_[nameSuffix].v - A testbench for the system.
-  % LFSR_[log(N)]_bit_added_zero_[nameSuffix].v - The RNG for generating
+  % namePrefix_MReSC_test.v - A testbench for the system.
+  % [namePrefix]_LFSR_[log(N)]_bit_added_zero.v - The RNG for generating
   %                                               stochastic numbers.
   
   %Parameters:
@@ -47,16 +47,16 @@ function VerilogMultivariateReSCGenerator(coeff, degrees, N, m_input,...
   % N         : the length of the stochastic bitstreams, must be a power of 2
   % m_input   : the length in bits of the input, at most log2(N)
   % m_coeff   : the length in bits of the coefficients, at most log2(N)
-  % nameSuffix: a distinguishing suffix to append to the name of each Verilog
+  % namePrefix: a distinguishing prefix to append to the name of each Verilog
   %             module
   
   %Optional Parameters:
   % singleWeightLFSR: Use the same LFSR for every constant. (Default true)
   
-  ReSCName = sprintf('MReSC_%s', nameSuffix);
-  wrapperName = sprintf('MReSC_wrapper_%s', nameSuffix);
-  testName = sprintf('MReSC_test_%s', nameSuffix);
-  randName = sprintf('LFSR_%d_bit_added_zero_%s', log2(N), nameSuffix);
+  ReSCName = sprintf('%s_MReSC', namePrefix);
+  wrapperName = sprintf('%s_MReSC_wrapper', namePrefix);
+  testName = sprintf('%s_MReSC_test', namePrefix);
+  randName = sprintf('%s_LFSR_%d_bit_added_zero', namePrefix, log2(N));
   
   printf('Generating core file %s\n', ReSCName);
   VerilogCoreMultivariateReSCGenerator(degrees, ReSCName);

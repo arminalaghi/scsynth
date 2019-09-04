@@ -21,7 +21,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VerilogMReSCFromFunction (func, degrees, N, m_input, m_coeff,...
-                                   nameSuffix, singleWeightLFSR=true,...
+                                   namePrefix, singleWeightLFSR=true,...
                                    domains=[0, 1], granularities=100,...
                                    useParallel=false)
   %Reconfigurable Architecture Based on Stochastic Logic, or ReSC, is a method
@@ -33,12 +33,12 @@ function VerilogMReSCFromFunction (func, degrees, N, m_input, m_coeff,...
   %polynomials on those variables. This function, given a function handle,
   %generates a complete multivariate ReSC module written in Verilog, containing
   %the following files:
-  % ReSC_[nameSuffix].v - The core stochastic module
-  % ReSC_wrapper_[nameSuffix].v - A wrapper for the module that converts inputs
+  % [namePrefix]_ReSC.v - The core stochastic module
+  % [namePrefix]_ReSC_wrapper.v - A wrapper for the module that converts inputs
   %                               inputs and outputs between binary and
   %                               stochastic representations.
-  % ReSC_test_[nameSuffix].v - A testbench for the system.
-  % LFSR_[log(N)]_bit_added_zero_[nameSuffix].v - The RNG for generating
+  % [namePrefix]_ReSC_test.v - A testbench for the system.
+  % [namePrefix]_LFSR_[log(N)]_bit_added_zero.v - The RNG for generating
   %                                               stochastic numbers.
   
   %Parameters:
@@ -49,7 +49,7 @@ function VerilogMReSCFromFunction (func, degrees, N, m_input, m_coeff,...
   % N         : the length of the stochastic bitstreams, must be a power of 2
   % m_input   : the length in bits of the input, at most log2(N)
   % m_coeff   : the length in bits of the coefficients, at most log2(N)
-  % nameSuffix: a distinguishing suffix to append to the name of each Verilog
+  % namePrefix: a distinguishing prefix to append to the name of each Verilog
   %             module
   
   %Optional Parameters:
@@ -107,6 +107,6 @@ function VerilogMReSCFromFunction (func, degrees, N, m_input, m_coeff,...
   
   data = [data, y];
 
-  VerilogMReSCFromData(data, degrees, N, m_input, m_coeff, nameSuffix,...
+  VerilogMReSCFromData(data, degrees, N, m_input, m_coeff, namePrefix,...
                        ConstantRNG='SharedLFSR',InputRNG='LFSR',useParallel);
 end
